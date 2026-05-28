@@ -212,20 +212,22 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
     </div>
     <div class="rm-dpad">
       <div class="dpad-empty"></div>
-      <div class="dpad-btn" onclick="pushCmd({t:'scroll',d:'up'})">▲</div>
+      <div class="dpad-btn" onclick="pushCmd({t:'nav_up'})">▲</div>
       <div class="dpad-empty"></div>
-      <div class="dpad-btn" onclick="pushCmd({t:'nav',d:'back'})">◀</div>
-      <div class="dpad-btn dpad-center" onclick="pushCmd({t:'reload'})">↻</div>
-      <div class="dpad-btn" onclick="pushCmd({t:'nav',d:'fwd'})">▶</div>
+      <div class="dpad-btn" onclick="pushCmd({t:'nav_prev'})">◀</div>
+      <div class="dpad-btn dpad-center" onclick="pushCmd({t:'select'})">OK</div>
+      <div class="dpad-btn" onclick="pushCmd({t:'nav_next'})">▶</div>
       <div class="dpad-empty"></div>
-      <div class="dpad-btn" onclick="pushCmd({t:'scroll',d:'down'})">▼</div>
+      <div class="dpad-btn" onclick="pushCmd({t:'nav_down'})">▼</div>
       <div class="dpad-empty"></div>
     </div>
     <div class="rm-actions">
+      <div class="act-btn" onclick="pushCmd({t:'scroll',d:'up'})">↑ Rolar</div>
+      <div class="act-btn" onclick="pushCmd({t:'scroll',d:'down'})">↓ Rolar</div>
       <div class="act-btn" onclick="pushCmd({t:'fullscreen'})">⛶ Tela cheia</div>
+      <div class="act-btn" onclick="pushCmd({t:'back'})">← Voltar</div>
       <div class="act-btn" onclick="pushCmd({t:'mute'})">🔇 Mudo</div>
-      <div class="act-btn" onclick="pushCmd({t:'vol',d:'up'})">🔊 Vol +</div>
-      <div class="act-btn" onclick="pushCmd({t:'vol',d:'down'})">🔉 Vol -</div>
+      <div class="act-btn" onclick="pushCmd({t:'reload'})">↻ Recarregar</div>
     </div>
     <div class="rm-apps-title">Abrir na TV</div>
     <div class="rm-apps">
@@ -249,7 +251,7 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
 // https://ably.com → Free account → API Keys
 // ══════════════════════════════════════════════
 // ══ COLE SUA CHAVE ABLY AQUI ══
-window.ABLY_KEY = '61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4';
+window.ABLY_KEY = 'COLE_SUA_CHAVE_ABLY_AQUI';
 // ══════════════════════════════
 
 const ABLY_KEY = window.ABLY_KEY;
@@ -280,17 +282,92 @@ function rmSetEng(e,el){rmEng=e;document.querySelectorAll('.rm-etab').forEach(t=
 function remoteSearch(){const q=document.getElementById('rm-search-input').value.trim();if(q)pushCmd({t:'search',q,eng:rmEng});}
 document.getElementById('rm-search-input').addEventListener('keydown',e=>{if(e.key==='Enter')remoteSearch();});
 
+// ── Cursor e navegação por foco ──
+const SELECTORS = 'a.app, a.ql, a.scard, .etab, button.search-btn';
+let focusIdx = 0;
+let focusList = [];
+let cursor = null;
+
+function buildFocusList(){
+  focusList = Array.from(document.querySelectorAll(SELECTORS)).filter(el => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  });
+}
+
+function getCursor(){
+  if(!cursor){
+    cursor = document.createElement('div');
+    cursor.style.cssText = `
+      position:fixed;z-index:9999;pointer-events:none;
+      border:3px solid #c45bff;border-radius:18px;
+      box-shadow:0 0 0 4px rgba(196,91,255,0.25),0 0 20px rgba(196,91,255,0.4);
+      transition:all 0.15s cubic-bezier(.4,0,.2,1);
+      background:rgba(196,91,255,0.08);
+    `;
+    document.body.appendChild(cursor);
+  }
+  return cursor;
+}
+
+function moveFocus(delta){
+  buildFocusList();
+  if(!focusList.length) return;
+  focusIdx = (focusIdx + delta + focusList.length) % focusList.length;
+  highlightFocus();
+}
+
+function highlightFocus(){
+  if(!focusList.length) return;
+  const el = focusList[focusIdx];
+  const r  = el.getBoundingClientRect();
+  const c  = getCursor();
+  c.style.left   = (r.left   - 4) + 'px';
+  c.style.top    = (r.top    - 4) + 'px';
+  c.style.width  = (r.width  + 8) + 'px';
+  c.style.height = (r.height + 8) + 'px';
+  el.scrollIntoView({block:'nearest', behavior:'smooth'});
+}
+
+function clickFocused(){
+  if(!focusList.length) return;
+  const el = focusList[focusIdx];
+  // flash
+  getCursor().style.background = 'rgba(196,91,255,0.35)';
+  setTimeout(()=> getCursor().style.background = 'rgba(196,91,255,0.08)', 250);
+  // navega
+  if(el.href) {
+    location.href = el.href; // mesma aba para evitar bloqueio de popup
+  } else {
+    el.click();
+  }
+}
+
 // ── Executa comando na TV ──
 function execCmd(d){
-  if(d.t==='search') window.open((ENG[d.eng]||ENG.google)+encodeURIComponent(d.q),'_blank');
-  else if(d.t==='open') window.open(d.url,'_blank');
-  else if(d.t==='scroll') window.scrollBy({top:d.d==='down'?320:-320,behavior:'smooth'});
-  else if(d.t==='fullscreen'){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}
-  else if(d.t==='reload') location.reload();
-  else if(d.t==='nav'){if(d.d==='back')history.back();else history.forward();}
-  else if(d.t==='mute') document.querySelectorAll('video,audio').forEach(m=>m.muted=!m.muted);
-  else if(d.t==='vol') document.querySelectorAll('video,audio').forEach(m=>m.volume=Math.max(0,Math.min(1,m.volume+(d.d==='up'?.1:-.1))));
+  if(d.t==='nav_next') moveFocus(1);
+  else if(d.t==='nav_prev') moveFocus(-1);
+  else if(d.t==='nav_down') moveFocus(4);  // pula ~1 linha
+  else if(d.t==='nav_up')   moveFocus(-4);
+  else if(d.t==='select')   clickFocused();
+  else if(d.t==='search'){
+    const url = (ENG[d.eng]||ENG.google)+encodeURIComponent(d.q);
+    location.href = url;
+  }
+  else if(d.t==='open')     location.href = d.url;
+  else if(d.t==='scroll')   window.scrollBy({top:d.d==='down'?320:-320,behavior:'smooth'});
+  else if(d.t==='fullscreen'){
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+    else document.exitFullscreen();
+  }
+  else if(d.t==='reload')   location.reload();
+  else if(d.t==='back')     history.back();
+  else if(d.t==='mute')     document.querySelectorAll('video,audio').forEach(m=>m.muted=!m.muted);
+  else if(d.t==='vol')      document.querySelectorAll('video,audio').forEach(m=>m.volume=Math.max(0,Math.min(1,m.volume+(d.d==='up'?.1:-.1))));
 }
+
+// inicia foco ao carregar TV
+window.addEventListener('load', ()=>{ buildFocusList(); if(focusList.length) highlightFocus(); });
 
 // ── Detecta modo ──
 const isRemote = new URLSearchParams(location.search).has('remote');
@@ -393,7 +470,7 @@ if(!keyOk && !isRemote){
   b.innerHTML=`<strong style="color:var(--accent2)">📡 Configure o controle remoto em 2 minutos:</strong><br>
 1. Acesse <a href="https://ably.com" target="_blank" style="color:var(--accent)">ably.com</a> e crie uma conta gratuita<br>
 2. No painel, vá em <strong>API Keys</strong> e copie a chave que começa com algo como <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">xVLRyA.abc123:...</code><br>
-3. No seu arquivo HTML (no Vercel), troque <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4</code> pela sua chave<br>
+3. No seu arquivo HTML (no Vercel), troque <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">COLE_SUA_CHAVE_ABLY_AQUI</code> pela sua chave<br>
 4. Faça o deploy — pronto! O QR já está gerado, é só escanear 📱`;
   document.querySelector('.footer').before(b);
 }
