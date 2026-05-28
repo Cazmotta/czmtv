@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TV Home</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0d0d14;
+  color: #eeeeff;
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* TOPBAR */
+.topbar {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  padding: 24px 48px 0;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #8b7ff5;
+  letter-spacing: 1px;
+}
+
+.clock-wrap { text-align: right; }
+
+#clock {
+  font-size: 34px;
+  font-weight: bold;
+  color: #eeeeff;
+  line-height: 1;
+}
+
+#date-str {
+  font-size: 13px;
+  color: #7a7a9a;
+  margin-top: 4px;
+}
+
+/* SEARCH */
+.search-wrap {
+  padding: 32px 48px 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-box {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  background: #1a1a26;
+  border: 1px solid #3a3560;
+  border-radius: 10px;
+  padding: 12px 18px;
+  gap: 10px;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  max-width: 680px;
+}
+
+.search-box:focus-within { border-color: #8b7ff5; }
+
+#search-input {
+  background: none;
+  border: none;
+  outline: none;
+  color: #eeeeff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 17px;
+  width: 100%;
+}
+
+.search-btn {
+  background: #6c5fea;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 12px 24px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.search-btn:hover { background: #7d70f5; }
+.search-btn:active { background: #5a4ed6; }
+
+/* ENGINES */
+.engines {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 8px;
+  padding: 14px 48px 0;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.engine-tab {
+  background: #1a1a26;
+  border: 1px solid #3a3560;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #7a7a9a;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.engine-tab:hover { color: #eeeeff; border-color: #8b7ff5; }
+.engine-tab.active { color: #eeeeff; border-color: #8b7ff5; background: #26243a; }
+
+/* SECTION TITLE */
+.section-title {
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #7a7a9a;
+  padding: 0 48px;
+  margin-top: 40px;
+  margin-bottom: 16px;
+}
+
+/* APPS GRID */
+.apps-grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 0 48px;
+}
+
+.app-card {
+  background: #1a1a26;
+  border: 1px solid #2e2b4a;
+  border-radius: 14px;
+  padding: 20px 14px 16px;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+  color: #eeeeff;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 10px;
+  width: 130px;
+}
+
+.app-card:hover {
+  border-color: #8b7ff5;
+  background: #21213a;
+}
+
+.app-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 13px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.app-name {
+  font-size: 12px;
+  font-weight: bold;
+  color: #d0d0f0;
+  line-height: 1.3;
+}
+
+/* QUICK LINKS */
+.quick-links {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 10px;
+  padding: 0 48px;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.quick-link {
+  background: #1a1a26;
+  border: 1px solid #2e2b4a;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #d0d0f0;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.quick-link:hover { border-color: #8b7ff5; color: #eeeeff; }
+
+/* STREAMING ROW */
+.content-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 14px;
+  padding: 0 48px;
+  overflow-x: auto;
+}
+
+.content-card {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 200px;
+  flex: 0 0 200px;
+  background: #1a1a26;
+  border: 1px solid #2e2b4a;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: #eeeeff;
+}
+
+.content-card:hover { border-color: #8b7ff5; }
+
+.content-thumb {
+  height: 110px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  font-size: 44px;
+}
+
+.content-info { padding: 10px 12px 12px; }
+
+.content-title {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.content-sub {
+  font-size: 11px;
+  color: #7a7a9a;
+}
+
+/* BROWSER */
+.browser-section { padding: 0 48px; }
+
+.browser-bar {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 8px;
+  background: #1a1a26;
+  border: 1px solid #2e2b4a;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  padding: 10px 14px;
+}
+
+.url-input {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  background: #0d0d14;
+  border: 1px solid #3a3560;
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #eeeeff;
+  outline: none;
+}
+
+.url-input:focus { border-color: #8b7ff5; }
+
+.nav-btn {
+  background: #0d0d14;
+  border: 1px solid #3a3560;
+  border-radius: 6px;
+  color: #eeeeff;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.nav-btn:hover { border-color: #8b7ff5; }
+
+.go-btn {
+  background: #6c5fea;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.go-btn:hover { background: #7d70f5; }
+
+.iframe-wrap {
+  background: #fff;
+  border: 1px solid #2e2b4a;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
+  height: 460px;
+}
+
+.iframe-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+
+.iframe-placeholder {
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  background: #13131e;
+  gap: 14px;
+  color: #7a7a9a;
+}
+
+.iframe-placeholder .big-icon { font-size: 48px; }
+.iframe-placeholder p { font-size: 14px; }
+
+/* FOOTER */
+.footer {
+  padding: 36px 48px 28px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-top: 1px solid #2e2b4a;
+  margin-top: 48px;
+}
+
+.footer-tip { font-size: 12px; color: #7a7a9a; }
+
+kbd {
+  background: #1a1a26;
+  border: 1px solid #3a3560;
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 11px;
+  font-family: monospace;
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">&#9635; TV HOME</div>
+  <div class="clock-wrap">
+    <div id="clock">00:00</div>
+    <div id="date-str"></div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+  <div class="search-box">
+    <span style="font-size:18px;">&#128269;</span>
+    <input type="text" id="search-input" placeholder="Buscar na internet..." autocomplete="off" />
+  </div>
+  <button class="search-btn" onclick="doSearch()">Buscar</button>
+</div>
+
+<div class="engines">
+  <div class="engine-tab active" onclick="setEngine('google',this)">Google</div>
+  <div class="engine-tab" onclick="setEngine('youtube',this)">YouTube</div>
+  <div class="engine-tab" onclick="setEngine('bing',this)">Bing</div>
+  <div class="engine-tab" onclick="setEngine('duckduckgo',this)">DuckDuckGo</div>
+  <div class="engine-tab" onclick="setEngine('twitch',this)">Twitch</div>
+</div>
+
+<!-- APPS -->
+<div class="section-title">Aplicativos</div>
+<div class="apps-grid">
+  <a class="app-card" href="https://youtube.com" target="_blank">
+    <div class="app-icon" style="background:#cc0000;">&#9654;</div>
+    <div class="app-name">YouTube</div>
+  </a>
+  <a class="app-card" href="https://twitch.tv/overblockk" target="_blank">
+    <div class="app-icon" style="background:#9147ff;">&#127918;</div>
+    <div class="app-name">Twitch</div>
+  </a>
+  <a class="app-card" href="https://netflix.com" target="_blank">
+    <div class="app-icon" style="background:#e50914;">N</div>
+    <div class="app-name">Netflix</div>
+  </a>
+  <a class="app-card" href="https://primevideo.com" target="_blank">
+    <div class="app-icon" style="background:#00a8e0;">&#127902;</div>
+    <div class="app-name">Prime Video</div>
+  </a>
+  <a class="app-card" href="https://open.spotify.com" target="_blank">
+    <div class="app-icon" style="background:#1db954;">&#9835;</div>
+    <div class="app-name">Spotify</div>
+  </a>
+  <a class="app-card" href="https://globoplay.globo.com" target="_blank">
+    <div class="app-icon" style="background:#cc0000;">G</div>
+    <div class="app-name">Globoplay</div>
+  </a>
+  <a class="app-card" href="https://crunchyroll.com" target="_blank">
+    <div class="app-icon" style="background:#f47521;">CR</div>
+    <div class="app-name">Crunchyroll</div>
+  </a>
+  <a class="app-card" href="https://disneyplus.com" target="_blank">
+    <div class="app-icon" style="background:#113ccf;">D+</div>
+    <div class="app-name">Disney+</div>
+  </a>
+  <a class="app-card" href="https://twitter.com" target="_blank">
+    <div class="app-icon" style="background:#111;">X</div>
+    <div class="app-name">X / Twitter</div>
+  </a>
+  <a class="app-card" href="https://reddit.com" target="_blank">
+    <div class="app-icon" style="background:#ff4500;">R</div>
+    <div class="app-name">Reddit</div>
+  </a>
+  <a class="app-card" href="https://g1.globo.com" target="_blank">
+    <div class="app-icon" style="background:#0055aa;">G1</div>
+    <div class="app-name">G1 Noticias</div>
+  </a>
+  <a class="app-card" href="https://maps.google.com" target="_blank">
+    <div class="app-icon" style="background:#34a853;">&#128205;</div>
+    <div class="app-name">Maps</div>
+  </a>
+</div>
+
+<!-- QUICK LINKS -->
+<div class="section-title">Acesso rapido</div>
+<div class="quick-links">
+  <a class="quick-link" href="https://youtube.com/results?search_query=filmes+completos+dublados" target="_blank">&#127902; Filmes gratis</a>
+  <a class="quick-link" href="https://youtube.com/results?search_query=anime+dublado+completo" target="_blank">Animes</a>
+  <a class="quick-link" href="https://youtube.com/results?search_query=musicas+mais+tocadas+2024" target="_blank">&#9835; Top musicas</a>
+  <a class="quick-link" href="https://twitch.tv/directory/game/Just+Chatting" target="_blank">Just Chatting</a>
+  <a class="quick-link" href="https://youtube.com/results?search_query=documentarios+em+portugues" target="_blank">Documentarios</a>
+  <a class="quick-link" href="https://youtube.com/results?search_query=humor+brasil" target="_blank">Humor BR</a>
+  <a class="quick-link" href="https://g1.globo.com/esportes" target="_blank">&#9917; Esportes</a>
+  <a class="quick-link" href="https://weather.com" target="_blank">Clima</a>
+</div>
+
+<!-- STREAMING -->
+<div class="section-title">Streaming em destaque</div>
+<div class="content-row">
+  <a class="content-card" href="https://twitch.tv/overblockk" target="_blank">
+    <div class="content-thumb" style="background:#6441a5;">&#127918;</div>
+    <div class="content-info">
+      <div class="content-title">overblockk</div>
+      <div class="content-sub">Seu canal - Twitch</div>
+    </div>
+  </a>
+  <a class="content-card" href="https://youtube.com/results?search_query=twitch+clips+brasil" target="_blank">
+    <div class="content-thumb" style="background:#cc0000;">&#128293;</div>
+    <div class="content-info">
+      <div class="content-title">Clips do Brasil</div>
+      <div class="content-sub">Melhores momentos</div>
+    </div>
+  </a>
+  <a class="content-card" href="https://twitch.tv/directory" target="_blank">
+    <div class="content-thumb" style="background:#2c2c3e;">&#128225;</div>
+    <div class="content-info">
+      <div class="content-title">Twitch Ao Vivo</div>
+      <div class="content-sub">Todos os canais</div>
+    </div>
+  </a>
+  <a class="content-card" href="https://youtube.com/results?search_query=live+br" target="_blank">
+    <div class="content-thumb" style="background:#880000;">&#128250;</div>
+    <div class="content-info">
+      <div class="content-title">Lives YouTube BR</div>
+      <div class="content-sub">Ao vivo agora</div>
+    </div>
+  </a>
+  <a class="content-card" href="https://globoplay.globo.com/ao-vivo/globo" target="_blank">
+    <div class="content-thumb" style="background:#cc0000;">&#128225;</div>
+    <div class="content-info">
+      <div class="content-title">Globo Ao Vivo</div>
+      <div class="content-sub">TV ao vivo</div>
+    </div>
+  </a>
+  <a class="content-card" href="https://youtube.com/results?search_query=nasa+live" target="_blank">
+    <div class="content-thumb" style="background:#003366;">&#128640;</div>
+    <div class="content-info">
+      <div class="content-title">NASA Live</div>
+      <div class="content-sub">Espaco ao vivo</div>
+    </div>
+  </a>
+</div>
+
+<!-- NAVEGADOR -->
+<div class="section-title">Navegacao rapida</div>
+<div class="browser-section">
+  <div class="browser-bar">
+    <button class="nav-btn" onclick="browserBack()" title="Voltar">&#8592;</button>
+    <button class="nav-btn" onclick="browserRefresh()" title="Recarregar">&#8635;</button>
+    <input class="url-input" id="url-input" type="text" placeholder="ex: globo.com ou youtube.com" />
+    <button class="go-btn" onclick="openUrl()">Ir &#8594;</button>
+  </div>
+  <div class="iframe-wrap">
+    <div class="iframe-placeholder" id="iframe-placeholder">
+      <div class="big-icon">&#127760;</div>
+      <p>Digite um endereco e clique em Ir</p>
+    </div>
+    <iframe id="main-iframe" style="display:none;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span class="footer-tip">Dica: pressione <kbd>F11</kbd> para tela cheia no Chrome</span>
+  <span class="footer-tip">TV Home &bull; overblockk</span>
+</div>
+
+<script>
+  // RELOGIO
+  function updateClock() {
+    var now = new Date();
+    var h = now.getHours(); if (h < 10) h = '0' + h;
+    var m = now.getMinutes(); if (m < 10) m = '0' + m;
+    document.getElementById('clock').innerHTML = h + ':' + m;
+    var dias = ['Domingo','Segunda','Terca','Quarta','Quinta','Sexta','Sabado'];
+    var meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    document.getElementById('date-str').innerHTML = dias[now.getDay()] + ', ' + now.getDate() + ' de ' + meses[now.getMonth()];
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+
+  // BUSCA
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    youtube: 'https://www.youtube.com/results?search_query=',
+    bing: 'https://www.bing.com/search?q=',
+    duckduckgo: 'https://duckduckgo.com/?q=',
+    twitch: 'https://www.twitch.tv/search?term='
+  };
+  var currentEngine = 'google';
+
+  function setEngine(eng, el) {
+    currentEngine = eng;
+    var tabs = document.querySelectorAll('.engine-tab');
+    for (var i = 0; i < tabs.length; i++) tabs[i].className = 'engine-tab';
+    el.className = 'engine-tab active';
+  }
+
+  function doSearch() {
+    var q = document.getElementById('search-input').value;
+    if (!q || !q.trim()) return;
+    window.open(engines[currentEngine] + encodeURIComponent(q.trim()), '_blank');
+  }
+
+  document.getElementById('search-input').onkeydown = function(e) {
+    if (e.keyCode === 13) doSearch();
+  };
+
+  // NAVEGADOR INTERNO
+  var iframeHistory = [];
+
+  function openUrl() {
+    var url = document.getElementById('url-input').value.trim();
+    if (!url) return;
+    if (url.indexOf('http://') !== 0 && url.indexOf('https://') !== 0) url = 'https://' + url;
+    var iframe = document.getElementById('main-iframe');
+    var placeholder = document.getElementById('iframe-placeholder');
+    iframe.src = url;
+    iframe.style.display = 'block';
+    placeholder.style.display = 'none';
+    iframeHistory.push(url);
+    document.getElementById('url-input').value = url;
+  }
+
+  function browserBack() {
+    if (iframeHistory.length > 1) {
+      iframeHistory.pop();
+      var prev = iframeHistory[iframeHistory.length - 1];
+      document.getElementById('main-iframe').src = prev;
+      document.getElementById('url-input').value = prev;
+    }
+  }
+
+  function browserRefresh() {
+    var iframe = document.getElementById('main-iframe');
+    if (iframe.src) iframe.src = iframe.src;
+  }
+
+  document.getElementById('url-input').onkeydown = function(e) {
+    if (e.keyCode === 13) openUrl();
+  };
+</script>
+</body>
+</html>
