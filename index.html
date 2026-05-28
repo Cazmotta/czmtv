@@ -248,10 +248,11 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
 // Troque ABLY_KEY pela sua chave em:
 // https://ably.com → Free account → API Keys
 // ══════════════════════════════════════════════
-const ABLY_KEY = '61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4';
-// Exemplo: 'xVLRyA.abc123:DEF456ghijklmnop'
-// ══════════════════════════════════════════════
+// ══ COLE SUA CHAVE ABLY AQUI ══
+window.ABLY_KEY = '61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4';
+// ══════════════════════════════
 
+const ABLY_KEY = window.ABLY_KEY;
 const CHANNEL = 'tv-overblockk-remote';
 const ENG = {
   google:'https://www.google.com/search?q=',
@@ -308,8 +309,17 @@ if(isRemote){
   });
 }
 
+// ── Debug: mostra os primeiros chars da key na tela (remoto) ──
+if(isRemote){
+  const dbg = document.createElement('div');
+  dbg.style.cssText='width:100%;padding:8px 16px;font-size:11px;color:var(--sub);word-break:break-all;text-align:center;';
+  dbg.textContent = 'KEY: "' + ABLY_KEY.slice(0,30) + '..." (len:' + ABLY_KEY.length + ')';
+  document.querySelector('.rm-header').after(dbg);
+}
+
 // ── Ably ──
-if(ABLY_KEY === '61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4'){
+const keyOk = ABLY_KEY.trim().length > 20 && !ABLY_KEY.includes('COLE');
+if(!keyOk){
   // Sem chave: mostra aviso mínimo no status
   if(!isRemote){
     document.getElementById('qr-status').textContent='⚠️ Configure Ably abaixo';
@@ -377,7 +387,7 @@ if(typeof pushCmd==='undefined') window.pushCmd = () => alert('Configure a chave
 <!-- Instruções quando sem chave -->
 <div id="instrucoes" style="display:none"></div>
 <script>
-if(ABLY_KEY==='61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4' && !isRemote){
+if(!keyOk && !isRemote){
   const b=document.createElement('div');
   b.style.cssText='margin:20px 56px;padding:20px;background:rgba(91,110,245,0.08);border:1.5px solid rgba(91,110,245,0.3);border-radius:14px;font-size:14px;line-height:1.9;color:var(--text)';
   b.innerHTML=`<strong style="color:var(--accent2)">📡 Configure o controle remoto em 2 minutos:</strong><br>
