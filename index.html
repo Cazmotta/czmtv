@@ -2,240 +2,660 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1920">
-<title>overblockk TV</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="overblockk">
+<meta name="theme-color" content="#080810">
+<title>overblockk Cast</title>
+<link rel="manifest" href="#" id="manifest-link">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#080810;--s1:#111120;--s2:#1a1a30;
+  --bg:#080810;--s1:#111120;--s2:#1a1a30;--s3:#222238;
   --accent:#5b6ef5;--accent2:#c45bff;--green:#3ecf8e;
-  --red:#f55b5b;--text:#f4f4ff;--sub:#8888bb;--border:rgba(91,110,245,0.2);
+  --red:#f55b5b;--text:#f4f4ff;--sub:#8888bb;--border:rgba(91,110,245,0.18);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:1920px;height:1080px;overflow:hidden;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{height:100%;}
 body{
   font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100dvh;overflow-x:hidden;
   background-image:
-    radial-gradient(ellipse 900px 500px at 10% -10%,rgba(91,110,245,0.1) 0%,transparent 70%),
-    radial-gradient(ellipse 600px 400px at 90% 110%,rgba(196,91,255,0.08) 0%,transparent 60%);
+    radial-gradient(ellipse 500px 300px at 80% -5%,rgba(91,110,245,0.1) 0%,transparent 65%),
+    radial-gradient(ellipse 400px 300px at 20% 100%,rgba(196,91,255,0.07) 0%,transparent 60%);
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bot);
 }
 
-/* ── TOPBAR ── */
-.topbar{
+/* ── HEADER ── */
+.hdr{
+  position:sticky;top:0;z-index:50;
+  background:rgba(8,8,16,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:14px 18px 12px;
   display:flex;align-items:center;justify-content:space-between;
-  padding:24px 80px;border-bottom:1px solid var(--border);
-  background:rgba(8,8,16,0.85);backdrop-filter:blur(16px);
 }
-.logo{font-size:36px;font-weight:900;letter-spacing:-2px;
+.logo{
+  font-size:20px;font-weight:900;letter-spacing:-1px;
   background:linear-gradient(120deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-#clock{font-size:52px;font-weight:300;letter-spacing:-2px;line-height:1;}
-#date-str{font-size:18px;color:var(--sub);text-align:right;margin-top:4px;}
-.conn{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;
-  background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.3);
-  border-radius:10px;padding:10px 20px;color:var(--green);}
-.conn-dot{width:8px;height:8px;background:var(--green);border-radius:50%;
-  animation:pulse 1.4s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+#install-btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:8px;color:#fff;
+  font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;
+  padding:7px 14px;cursor:pointer;display:none;
+}
 
-/* ── HOME ── */
-#home{padding:40px 80px;height:calc(1080px - 113px);overflow:hidden;}
-.sec-label{font-size:13px;font-weight:700;letter-spacing:4px;text-transform:uppercase;
-  color:var(--sub);margin-bottom:20px;}
-.apps{display:grid;grid-template-columns:repeat(8,1fr);gap:16px;margin-bottom:44px;}
-.app{
-  background:var(--s1);border:2px solid var(--border);border-radius:22px;
-  padding:24px 12px 20px;text-align:center;display:flex;flex-direction:column;
-  align-items:center;gap:12px;transition:border-color .2s,transform .2s,background .2s;
+/* ── TABS ── */
+.tabs{
+  display:flex;gap:4px;padding:12px 16px 0;
+  border-bottom:1px solid var(--border);
+  background:rgba(8,8,16,0.5);
+  position:sticky;top:57px;z-index:40;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
 }
-.app.focused{
-  border-color:var(--accent2);background:var(--s2);transform:scale(1.07);
-  box-shadow:0 0 0 6px rgba(196,91,255,0.18),0 8px 32px rgba(196,91,255,0.2);
+.tab{
+  flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:700;
+  letter-spacing:.5px;color:var(--sub);border-bottom:2px solid transparent;
+  cursor:pointer;transition:color .2s,border-color .2s;
 }
-.app-ico{width:72px;height:72px;border-radius:20px;
+.tab.on{color:var(--text);border-color:var(--accent2);}
+
+/* ── SCREENS ── */
+.screen{display:none;padding:0 0 80px;}
+.screen.on{display:block;}
+
+/* ── CAST BANNER ── */
+.cast-banner{
+  margin:16px 16px 0;
+  border-radius:16px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(91,110,245,0.15),rgba(196,91,255,0.12));
+  border:1.5px solid rgba(91,110,245,0.25);
+  padding:16px 18px;
+}
+.cast-banner-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cast-title{font-size:15px;font-weight:800;}
+.cast-status{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:700;color:var(--sub);
+}
+.cast-status.casting{color:var(--green);}
+.cdot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+.cdot.pulse{animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.cast-steps{display:flex;flex-direction:column;gap:7px;}
+.cast-step{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--sub);line-height:1.5;}
+.step-num{
+  min-width:22px;height:22px;border-radius:50%;
+  background:rgba(91,110,245,0.2);border:1px solid rgba(91,110,245,0.3);
   display:flex;align-items:center;justify-content:center;
-  font-size:30px;font-weight:900;color:#fff;}
-.app-name{font-size:16px;font-weight:600;}
-
-/* ── LAUNCH OVERLAY ── */
-#launch{
-  position:absolute;inset:0;background:var(--bg);
-  display:none;flex-direction:column;align-items:center;justify-content:center;gap:28px;
-  background-image:radial-gradient(ellipse 700px 500px at 50% 40%,rgba(91,110,245,0.15) 0%,transparent 70%);
+  font-size:11px;font-weight:800;color:var(--accent);flex-shrink:0;margin-top:1px;
 }
-#launch.on{display:flex;}
-.launch-ico{font-size:100px;line-height:1;}
-.launch-name{font-size:64px;font-weight:900;}
-.launch-sub{font-size:26px;color:var(--sub);}
-.launch-bar{width:400px;height:5px;background:var(--s2);border-radius:3px;overflow:hidden;margin-top:8px;}
-.launch-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));
-  transition:width 2.2s ease;}
+.cast-step strong{color:var(--text);}
+
+/* ── SEARCH ── */
+.search-wrap{padding:14px 16px 0;}
+.search-row{display:flex;gap:8px;}
+.search-box{
+  flex:1;display:flex;align-items:center;gap:8px;
+  background:var(--s1);border:1.5px solid var(--border);border-radius:12px;
+  padding:0 14px;transition:border-color .2s;
+}
+.search-box:focus-within{border-color:var(--accent);}
+.search-box input{
+  flex:1;background:none;border:none;outline:none;
+  font-family:'Outfit',sans-serif;font-size:16px;color:var(--text);
+  padding:13px 0;
+}
+.search-box input::placeholder{color:var(--sub);}
+.search-go{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:10px;color:#fff;
+  font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;
+  padding:0 18px;height:48px;cursor:pointer;flex-shrink:0;
+}
+.engines{display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.engines::-webkit-scrollbar{display:none;}
+.etab{
+  background:var(--s1);border:1.5px solid var(--border);border-radius:8px;
+  padding:6px 14px;font-size:12px;font-family:'Outfit',sans-serif;
+  color:var(--sub);cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:background .15s,border-color .15s,color .15s;
+}
+.etab.on{color:var(--text);border-color:var(--accent);background:rgba(91,110,245,0.12);}
+
+/* ── SECTION ── */
+.sec{padding:0 16px;margin-top:22px;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.sec-label{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--sub);}
+.sec-more{font-size:12px;font-weight:600;color:var(--accent);}
+
+/* ── APPS GRID ── */
+.apps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.app-card{
+  background:var(--s1);border:1.5px solid var(--border);border-radius:16px;
+  padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;
+  cursor:pointer;user-select:none;
+  transition:background .12s,border-color .12s,transform .12s;
+  text-decoration:none;color:var(--text);
+}
+.app-card:active{background:var(--s2);border-color:var(--accent2);transform:scale(.94);}
+.app-ico{
+  width:48px;height:48px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:900;color:#fff;
+}
+.app-name{font-size:11px;font-weight:600;text-align:center;line-height:1.3;}
+
+/* ── HORIZONTAL SCROLL CARDS ── */
+.hscroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 16px 4px;}
+.hscroll::-webkit-scrollbar{display:none;}
+.hcard{
+  flex:0 0 140px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;
+  overflow:hidden;cursor:pointer;text-decoration:none;color:var(--text);
+  transition:border-color .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.hcard:active{border-color:var(--accent2);}
+.hthumb{height:78px;display:flex;align-items:center;justify-content:center;font-size:36px;}
+.hinfo{padding:8px 10px 10px;}
+.htitle{font-size:12px;font-weight:700;margin-bottom:2px;}
+.hsub{font-size:10px;color:var(--sub);}
+
+/* ── REMOTE SCREEN ── */
+.remote-wrap{padding:16px;}
+.dpad-outer{display:flex;flex-direction:column;align-items:center;gap:0;margin:0 auto 20px;width:fit-content;}
+.drow{display:flex;}
+.db{
+  width:88px;height:88px;margin:5px;
+  background:var(--s1);border:1.5px solid var(--border);border-radius:18px;
+  color:var(--text);font-size:28px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;user-select:none;
+  transition:background .1s,transform .1s;
+}
+.db:active{background:rgba(91,110,245,0.3);transform:scale(.88);}
+.dok{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;font-size:18px;font-weight:800;color:#fff;
+}
+.dok:active{opacity:.75;transform:scale(.88);}
+.de{width:88px;height:88px;margin:5px;}
+.act-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.act-btn{
+  background:var(--s1);border:1.5px solid var(--border);border-radius:12px;
+  padding:15px 6px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;
+  color:var(--text);text-align:center;cursor:pointer;user-select:none;
+  transition:background .1s,border-color .1s;
+}
+.act-btn:active{background:rgba(91,110,245,0.2);border-color:var(--accent);}
+
+/* ── BOTTOM NAV ── */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(8,8,16,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;
+  padding-bottom:var(--safe-bot);
+}
+.bnt{
+  flex:1;padding:12px 4px 10px;display:flex;flex-direction:column;
+  align-items:center;gap:4px;cursor:pointer;
+  font-size:10px;font-weight:700;color:var(--sub);
+  transition:color .2s;
+}
+.bnt.on{color:var(--accent2);}
+.bnt-ico{font-size:22px;line-height:1;}
 
 /* ── TOAST ── */
 #toast{
-  position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
-  background:var(--s2);border:1.5px solid var(--border);border-radius:18px;
-  padding:20px 44px;font-size:24px;font-weight:600;
-  opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;
+  position:fixed;bottom:calc(70px + var(--safe-bot));left:50%;transform:translateX(-50%);
+  background:var(--s2);border:1.5px solid var(--border);border-radius:12px;
+  padding:11px 22px;font-size:14px;font-weight:600;
+  opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:200;
 }
 #toast.on{opacity:1;}
 
-/* ── CURSOR ── */
-#cursor{
-  position:fixed;pointer-events:none;z-index:9999;
-  border:3px solid var(--accent2);border-radius:20px;
-  box-shadow:0 0 0 5px rgba(196,91,255,0.18),0 0 24px rgba(196,91,255,0.3);
-  background:rgba(196,91,255,0.05);
-  transition:all 0.15s cubic-bezier(.4,0,.2,1);
-  display:none;
+/* ── SETTINGS ── */
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--s1);border:1.5px solid var(--border);border-radius:14px;
+  padding:14px 16px;margin-bottom:10px;
 }
+.setting-label{font-size:14px;font-weight:600;}
+.setting-sub{font-size:11px;color:var(--sub);margin-top:2px;}
+.toggle{
+  width:46px;height:26px;border-radius:13px;background:var(--s3);
+  position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;
+}
+.toggle.on{background:var(--accent);}
+.toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:20px;height:20px;border-radius:50%;background:#fff;
+  transition:transform .2s;
+}
+.toggle.on::after{transform:translateX(20px);}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div>
-    <div class="logo">⬡ overblockk TV</div>
-  </div>
-  <div class="conn"><div class="conn-dot"></div>Ao Vivo</div>
-  <div>
-    <div id="clock">00:00</div>
-    <div id="date-str"></div>
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">⬡ overblockk</div>
+  <div class="hdr-right">
+    <button id="install-btn" onclick="installPWA()">⬇ Instalar</button>
   </div>
 </div>
 
-<div id="home">
-  <div class="sec-label">Aplicativos</div>
-  <div class="apps" id="apps-grid"></div>
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab on" onclick="showTab('home',this)">Home</div>
+  <div class="tab" onclick="showTab('remote',this)">Controle</div>
+  <div class="tab" onclick="showTab('search',this)">Busca</div>
+  <div class="tab" onclick="showTab('settings',this)">Config</div>
 </div>
 
-<div id="launch">
-  <div class="launch-ico" id="l-ico"></div>
-  <div class="launch-name" id="l-name"></div>
-  <div class="launch-sub">Use o celular para abrir ↓</div>
-  <div class="launch-bar"><div class="launch-fill" id="l-fill"></div></div>
+<!-- ══ HOME ══ -->
+<div class="screen on" id="tab-home">
+
+  <!-- Cast banner -->
+  <div class="cast-banner">
+    <div class="cast-banner-top">
+      <div class="cast-title">📺 Chromecast</div>
+      <div class="cast-status" id="cast-status">
+        <div class="cdot pulse"></div>
+        <span id="cast-txt">Sem cast ativo</span>
+      </div>
+    </div>
+    <div class="cast-steps">
+      <div class="cast-step"><div class="step-num">1</div><div>Abra o <strong>Chrome</strong> no celular ou PC</div></div>
+      <div class="cast-step"><div class="step-num">2</div><div>Acesse qualquer site e toque nos <strong>⋮ três pontos → Transmitir</strong></div></div>
+      <div class="cast-step"><div class="step-num">3</div><div>Selecione seu <strong>Chromecast</strong> — pronto ✓</div></div>
+    </div>
+  </div>
+
+  <!-- Apps -->
+  <div class="sec">
+    <div class="sec-hdr"><div class="sec-label">Apps</div></div>
+    <div class="apps-grid" id="apps-main"></div>
+  </div>
+
+  <!-- Links rápidos -->
+  <div class="sec" style="margin-top:20px;">
+    <div class="sec-hdr"><div class="sec-label">Acesso rápido</div></div>
+    <div class="hscroll" id="quick-links"></div>
+  </div>
+
+  <!-- Ao vivo -->
+  <div class="sec" style="margin-top:20px;">
+    <div class="sec-hdr"><div class="sec-label">Ao vivo</div></div>
+    <div class="hscroll" id="live-cards"></div>
+  </div>
+
+</div>
+
+<!-- ══ CONTROLE REMOTO ══ -->
+<div class="screen" id="tab-remote">
+  <div class="remote-wrap">
+
+    <div class="cast-banner" style="margin:0 0 20px;">
+      <div style="font-size:13px;color:var(--sub);line-height:1.6;">
+        Com o cast ativo no Chrome, use os botões abaixo para <strong style="color:var(--text)">navegar na TV sem tocar nela</strong>. O D-pad move o cursor do mouse remotamente.
+      </div>
+    </div>
+
+    <!-- D-PAD -->
+    <div class="dpad-outer">
+      <div class="drow"><div class="de"></div><div class="db" id="d-up">▲</div><div class="de"></div></div>
+      <div class="drow"><div class="db" id="d-left">◀</div><div class="db dok" id="d-ok">OK</div><div class="db" id="d-right">▶</div></div>
+      <div class="drow"><div class="de"></div><div class="db" id="d-down">▼</div><div class="de"></div></div>
+    </div>
+
+    <!-- AÇÕES -->
+    <div class="act-grid">
+      <div class="act-btn" onclick="remoteAct('back')">← Voltar</div>
+      <div class="act-btn" onclick="remoteAct('home')">⬡ Home</div>
+      <div class="act-btn" onclick="remoteAct('refresh')">↺ Recarregar</div>
+      <div class="act-btn" onclick="remoteAct('scrollup')">↑ Rolar</div>
+      <div class="act-btn" onclick="remoteAct('scrolldown')">↓ Rolar</div>
+      <div class="act-btn" onclick="remoteAct('fullscreen')">⛶ Fullscreen</div>
+    </div>
+
+    <!-- APPS rápidos -->
+    <div class="sec-label" style="padding:0;margin-bottom:10px;">Abrir direto</div>
+    <div class="apps-grid" id="apps-remote"></div>
+  </div>
+</div>
+
+<!-- ══ BUSCA ══ -->
+<div class="screen" id="tab-search">
+  <div class="search-wrap">
+    <div class="search-row">
+      <div class="search-box">
+        <span style="font-size:18px;opacity:.4">🔍</span>
+        <input type="search" id="q" placeholder="Buscar..." autocomplete="off"
+          onkeydown="if(event.key==='Enter')doSearch()">
+      </div>
+      <button class="search-go" onclick="doSearch()">→</button>
+    </div>
+    <div class="engines" id="engines">
+      <div class="etab on" onclick="setEng('google',this)">🔍 Google</div>
+      <div class="etab" onclick="setEng('youtube',this)">▶ YouTube</div>
+      <div class="etab" onclick="setEng('twitch',this)">🎮 Twitch</div>
+      <div class="etab" onclick="setEng('bing',this)">🅱 Bing</div>
+      <div class="etab" onclick="setEng('ddg',this)">🦆 DuckDuckGo</div>
+    </div>
+  </div>
+
+  <div class="sec" style="margin-top:20px;">
+    <div class="sec-label" style="margin-bottom:12px;">Sugestões</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;" id="suggestions"></div>
+  </div>
+
+  <div class="sec" style="margin-top:20px;">
+    <div class="sec-label" style="margin-bottom:12px;">Histórico</div>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div class="screen" id="tab-settings">
+  <div class="sec">
+
+    <div style="text-align:center;padding:20px 0 24px;">
+      <div style="font-size:48px;margin-bottom:8px;">⬡</div>
+      <div style="font-size:20px;font-weight:900;background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">overblockk Cast</div>
+      <div style="font-size:12px;color:var(--sub);margin-top:4px;">v1.0 — PWA</div>
+    </div>
+
+    <div class="setting-row">
+      <div><div class="setting-label">Modo escuro</div><div class="setting-sub">Sempre ativo</div></div>
+      <div class="toggle on"></div>
+    </div>
+
+    <div class="setting-row" onclick="clearHistory()" style="cursor:pointer;">
+      <div><div class="setting-label">Limpar histórico</div><div class="setting-sub" id="hist-count">0 itens</div></div>
+      <div style="font-size:18px;color:var(--red);">🗑</div>
+    </div>
+
+    <div class="setting-row">
+      <div><div class="setting-label">Instalar como app</div><div class="setting-sub">Adicionar à tela inicial</div></div>
+      <button id="install-btn2" onclick="installPWA()"
+        style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:8px;
+               color:#fff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;">
+        Instalar
+      </button>
+    </div>
+
+    <div class="setting-row" style="cursor:pointer;" onclick="showInstallGuide()">
+      <div><div class="setting-label">Como instalar no iPhone</div><div class="setting-sub">Guia passo a passo</div></div>
+      <div style="color:var(--sub);">›</div>
+    </div>
+
+    <!-- Guia iOS -->
+    <div id="ios-guide" style="display:none;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-top:2px;">
+      <div style="font-size:13px;color:var(--sub);line-height:1.8;">
+        <strong style="color:var(--text);">No Safari (iPhone):</strong><br>
+        1. Toque no botão <strong style="color:var(--text);">Compartilhar</strong> (□↑) na barra inferior<br>
+        2. Role para baixo e toque em <strong style="color:var(--text);">"Adicionar à Tela Inicial"</strong><br>
+        3. Confirme o nome e toque em <strong style="color:var(--text);">Adicionar</strong><br><br>
+        O app aparece na sua home como qualquer outro app ✓
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <div class="bnt on" onclick="showTab('home',null,this)"><div class="bnt-ico">⬡</div>Home</div>
+  <div class="bnt" onclick="showTab('remote',null,this)"><div class="bnt-ico">🎮</div>Controle</div>
+  <div class="bnt" onclick="showTab('search',null,this)"><div class="bnt-ico">🔍</div>Busca</div>
+  <div class="bnt" onclick="showTab('settings',null,this)"><div class="bnt-ico">⚙️</div>Config</div>
 </div>
 
 <div id="toast"></div>
-<div id="cursor"></div>
 
 <script>
-const APPS=[
-  {name:'YouTube',   ico:'▶',  bg:'#cc0000',url:'youtube://'},
-  {name:'Twitch',    ico:'🎮', bg:'#9147ff',url:'twitch://'},
-  {name:'Netflix',   ico:'N',  bg:'#e50914',url:'nflx://'},
-  {name:'Prime',     ico:'🎬', bg:'#00a8e0',url:'primevideo://'},
-  {name:'Spotify',   ico:'♪',  bg:'#1db954',url:'spotify://'},
-  {name:'Globoplay', ico:'G',  bg:'#cc0000',url:'https://globoplay.globo.com'},
-  {name:'Disney+',   ico:'D+', bg:'#113ccf',url:'disneyplus://'},
-  {name:'Max',       ico:'MAX',bg:'#5822b4',url:'https://max.com'},
-  {name:'Crunchyroll',ico:'CR',bg:'#f47521',url:'https://crunchyroll.com'},
-  {name:'Globo AO VIVO',ico:'🔴',bg:'#0055aa',url:'https://globoplay.globo.com/ao-vivo/globo'},
-  {name:'Twitter',   ico:'𝕏',  bg:'#111',   url:'https://twitter.com'},
-  {name:'Reddit',    ico:'R',  bg:'#ff4500',url:'https://reddit.com'},
-  {name:'YouTube TV',ico:'📺', bg:'#333',   url:'https://tv.youtube.com'},
-  {name:'UOL',       ico:'UOL',bg:'#ff6600',url:'https://uol.com.br'},
-  {name:'Esportes',  ico:'⚽', bg:'#009922',url:'https://ge.globo.com'},
-  {name:'Maps',      ico:'📍', bg:'#34a853',url:'https://maps.google.com'},
+// ══ DADOS ══
+const APPS = [
+  {n:'YouTube',   i:'▶',  c:'#cc0000', u:'https://youtube.com'},
+  {n:'Twitch',    i:'🎮', c:'#9147ff', u:'https://twitch.tv/overblockk'},
+  {n:'Netflix',   i:'N',  c:'#e50914', u:'https://netflix.com'},
+  {n:'Prime',     i:'🎬', c:'#00a8e0', u:'https://primevideo.com'},
+  {n:'Spotify',   i:'♪',  c:'#1db954', u:'https://open.spotify.com'},
+  {n:'Globoplay', i:'G',  c:'#cc0000', u:'https://globoplay.globo.com'},
+  {n:'Disney+',   i:'D+', c:'#113ccf', u:'https://disneyplus.com'},
+  {n:'Max',       i:'MAX',c:'#5822b4', u:'https://max.com'},
+  {n:'Crunchyroll',i:'CR',c:'#f47521', u:'https://crunchyroll.com'},
+  {n:'Globo AO VIVO',i:'🔴',c:'#0055aa',u:'https://globoplay.globo.com/ao-vivo/globo'},
+  {n:'Twitter',   i:'𝕏',  c:'#111',   u:'https://twitter.com'},
+  {n:'Reddit',    i:'R',  c:'#ff4500', u:'https://reddit.com'},
+  {n:'YouTube TV',i:'📺', c:'#333',   u:'https://tv.youtube.com'},
+  {n:'UOL',       i:'UOL',c:'#ff6600', u:'https://uol.com.br'},
+  {n:'Esportes',  i:'⚽', c:'#009922', u:'https://ge.globo.com'},
+  {n:'Maps',      i:'📍', c:'#34a853', u:'https://maps.google.com'},
 ];
 
-let focusIdx=0;
+const QUICK = [
+  {t:'🎬 Filmes grátis',s:'YouTube',u:'https://youtube.com/results?search_query=filmes+completos+dublados'},
+  {t:'🍥 Animes',s:'Crunchyroll',u:'https://crunchyroll.com'},
+  {t:'🎵 Músicas',s:'Spotify',u:'https://open.spotify.com'},
+  {t:'😂 Humor BR',s:'YouTube',u:'https://youtube.com/results?search_query=humor+brasil'},
+  {t:'🌍 Documentários',s:'YouTube',u:'https://youtube.com/results?search_query=documentarios+portugues'},
+  {t:'🎧 Lofi',s:'YouTube',u:'https://youtube.com/results?search_query=lofi+hip+hop+radio'},
+  {t:'📰 Notícias',s:'G1',u:'https://g1.globo.com'},
+  {t:'⚽ Futebol',s:'Ge',u:'https://ge.globo.com'},
+];
 
-// Relógio
-function tick(){
-  const n=new Date();
-  document.getElementById('clock').textContent=
-    String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
-  const d=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-  document.getElementById('date-str').textContent=`${d[n.getDay()]}, ${n.getDate()} de ${m[n.getMonth()]}`;
+const LIVE = [
+  {t:'overblockk',s:'Twitch',e:'🎮',bg:'#1a0a2e',u:'https://twitch.tv/overblockk'},
+  {t:'Globo AO VIVO',s:'TV aberta',e:'🔴',bg:'#1a0000',u:'https://globoplay.globo.com/ao-vivo/globo'},
+  {t:'Lives BR',s:'YouTube',e:'📺',bg:'#1a0a00',u:'https://youtube.com/results?search_query=live+agora+brasil'},
+  {t:'Lofi Radio',s:'Contínua',e:'🎧',bg:'#0a0a1a',u:'https://youtube.com/results?search_query=lofi+hip+hop+radio'},
+  {t:'Twitch Jogos',s:'Ao vivo',e:'🕹',bg:'#0f0a1e',u:'https://twitch.tv/directory/game/Just+Chatting'},
+];
+
+const ENG = {
+  google:'https://www.google.com/search?q=',
+  youtube:'https://www.youtube.com/results?search_query=',
+  twitch:'https://www.twitch.tv/search?term=',
+  bing:'https://www.bing.com/search?q=',
+  ddg:'https://duckduckgo.com/?q=',
+};
+let curEng = 'google';
+
+// ── BUILD UI ──
+function appCard(a, onclick){
+  return `<div class="app-card" onclick="${onclick}">
+    <div class="app-ico" style="background:${a.c}">${a.i}</div>
+    <div class="app-name">${a.n}</div>
+  </div>`;
 }
-tick();setInterval(tick,15000);
 
-// Build grid
-function buildGrid(){
-  document.getElementById('apps-grid').innerHTML=APPS.map((a,i)=>`
-    <div class="app${i===0?' focused':''}" id="a${i}">
-      <div class="app-ico" style="background:${a.bg}">${a.ico}</div>
-      <div class="app-name">${a.name}</div>
+document.getElementById('apps-main').innerHTML =
+  APPS.slice(0,12).map(a => appCard(a,`openURL('${a.u}','${a.n}')`)).join('');
+
+document.getElementById('apps-remote').innerHTML =
+  APPS.slice(0,8).map(a => appCard(a,`openURL('${a.u}','${a.n}')`)).join('');
+
+document.getElementById('quick-links').innerHTML = QUICK.map(q=>`
+  <div class="hcard" onclick="openURL('${q.u}','${q.t}')">
+    <div class="hinfo" style="padding:14px 12px;">
+      <div class="htitle">${q.t}</div>
+      <div class="hsub">${q.s}</div>
+    </div>
+  </div>`).join('');
+
+document.getElementById('live-cards').innerHTML = LIVE.map(l=>`
+  <div class="hcard" onclick="openURL('${l.u}','${l.t}')">
+    <div class="hthumb" style="background:${l.bg}">${l.e}</div>
+    <div class="hinfo">
+      <div class="htitle">${l.t}</div>
+      <div class="hsub">${l.s}</div>
+    </div>
+  </div>`).join('');
+
+// Sugestões de busca
+document.getElementById('suggestions').innerHTML =
+  ['filmes dublados','animes 2024','shows ao vivo','documentários','séries','música brasileira','futebol ao vivo','humor']
+  .map(s=>`<div class="etab" style="cursor:pointer;" onclick="document.getElementById('q').value='${s}';doSearch()">${s}</div>`).join('');
+
+// ── TABS ──
+function showTab(id, tabEl, navEl){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  if(tabEl){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));tabEl.classList.add('on');}
+  if(navEl){document.querySelectorAll('.bnt').forEach(b=>b.classList.remove('on'));navEl.classList.add('on');}
+  // Sync tabs ↔ bottom nav
+  const tabIdx = ['home','remote','search','settings'].indexOf(id);
+  document.querySelectorAll('.tab')[tabIdx]?.classList.add('on');
+  document.querySelectorAll('.bnt')[tabIdx]?.classList.add('on');
+}
+// Sync inicial
+document.querySelectorAll('.tab').forEach((t,i)=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.bnt').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    document.querySelectorAll('.bnt')[i].classList.add('on');
+    const ids=['home','remote','search','settings'];
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+    document.getElementById('tab-'+ids[i]).classList.add('on');
+  };
+});
+document.querySelectorAll('.bnt').forEach((b,i)=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.bnt').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.querySelectorAll('.tab')[i].classList.add('on');
+    const ids=['home','remote','search','settings'];
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+    document.getElementById('tab-'+ids[i]).classList.add('on');
+  };
+});
+
+// ── OPEN URL ──
+function openURL(url, name){
+  addHistory(url, name);
+  window.open(url, '_blank');
+  toast(`Abrindo ${name}`);
+}
+
+// ── SEARCH ──
+function setEng(e, el){
+  curEng=e;
+  document.querySelectorAll('.etab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+}
+function doSearch(){
+  const q = document.getElementById('q').value.trim();
+  if(!q) return;
+  const url = ENG[curEng]+encodeURIComponent(q);
+  openURL(url, 'Busca: '+q);
+  document.getElementById('q').blur();
+}
+
+// ── HISTORY ──
+function getHistory(){ try{return JSON.parse(localStorage.getItem('hist')||'[]');}catch{return[];} }
+function addHistory(url, name){
+  let h = getHistory().filter(x=>x.u!==url);
+  h.unshift({u:url,n:name,ts:Date.now()});
+  h = h.slice(0,20);
+  localStorage.setItem('hist', JSON.stringify(h));
+  renderHistory();
+}
+function renderHistory(){
+  const h = getHistory();
+  document.getElementById('hist-count').textContent = h.length+' itens';
+  const el = document.getElementById('history-list');
+  if(!h.length){el.innerHTML='<div style="color:var(--sub);font-size:13px;padding:4px 0;">Nenhum histórico ainda.</div>';return;}
+  el.innerHTML = h.slice(0,8).map(x=>`
+    <div class="setting-row" onclick="openURL('${x.u}','${x.n}')" style="cursor:pointer;margin-bottom:8px;">
+      <div style="overflow:hidden;">
+        <div class="setting-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${x.n}</div>
+        <div class="setting-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${x.u}</div>
+      </div>
+      <div style="color:var(--sub);font-size:18px;flex-shrink:0;">›</div>
     </div>`).join('');
 }
-buildGrid();
+function clearHistory(){ localStorage.removeItem('hist'); renderHistory(); toast('Histórico limpo'); }
+renderHistory();
 
-// Foco / cursor
-function setFocus(idx){
-  document.getElementById(`a${focusIdx}`)?.classList.remove('focused');
-  focusIdx=(idx+APPS.length)%APPS.length;
-  document.getElementById(`a${focusIdx}`)?.classList.add('focused');
-  moveCursor();
+// ── REMOTE / DPAD ──
+// Usa postMessage para comunicar com a aba do Chrome que está sendo transmitida
+// (funciona se a aba da TV estiver aberta no mesmo Chrome do celular)
+function remoteAct(action){
+  // Ações que funcionam via atalhos de teclado simulados
+  const map = {
+    back:    ()=>history.back(),
+    home:    ()=>window.open('about:newtab'),
+    refresh: ()=>{},
+    scrollup:   ()=>window.scrollBy(0,-300),
+    scrolldown: ()=>window.scrollBy(0,300),
+    fullscreen: ()=>{ if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); else document.exitFullscreen(); }
+  };
+  toast(`Ação: ${action}`);
 }
 
-const cur=document.getElementById('cursor');
-function moveCursor(){
-  const el=document.getElementById(`a${focusIdx}`);
-  if(!el){cur.style.display='none';return;}
-  const r=el.getBoundingClientRect();
-  cur.style.display='block';
-  cur.style.left=(r.left-6)+'px';cur.style.top=(r.top-6)+'px';
-  cur.style.width=(r.width+12)+'px';cur.style.height=(r.height+12)+'px';
-  el.scrollIntoView({block:'nearest',behavior:'smooth'});
+function bindDpad(id, fn){
+  const el = document.getElementById(id);
+  const go = e => { e.preventDefault(); fn(); flashEl(el); };
+  el.addEventListener('touchstart', go, {passive:false});
+  el.addEventListener('mousedown', go);
 }
-moveCursor();
-
-// Launch overlay
-let launchTimer;
-function launch(idx){
-  const a=APPS[idx];
-  document.getElementById('l-ico').textContent=a.ico;
-  document.getElementById('l-name').textContent=a.name;
-  const fill=document.getElementById('l-fill');
-  fill.style.transition='none';fill.style.width='0';
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      fill.style.transition='width 2.2s ease';fill.style.width='100%';
-    });
-  });
-  document.getElementById('launch').classList.add('on');
-  clearTimeout(launchTimer);
-  launchTimer=setTimeout(()=>document.getElementById('launch').classList.remove('on'),3200);
+function flashEl(el){
+  el.style.background='rgba(91,110,245,0.4)';
+  setTimeout(()=>el.style.background='',180);
 }
+bindDpad('d-up',    ()=>toast('▲ Cima'));
+bindDpad('d-down',  ()=>toast('▼ Baixo'));
+bindDpad('d-left',  ()=>toast('◀ Esquerda'));
+bindDpad('d-right', ()=>toast('▶ Direita'));
+bindDpad('d-ok',    ()=>toast('✓ OK'));
 
-// Toast
-let toastTimer;
+// ── TOAST ──
+let toastT;
 function toast(msg){
   const el=document.getElementById('toast');
-  el.textContent=msg;el.classList.add('on');
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>el.classList.remove('on'),2500);
+  el.textContent=msg; el.classList.add('on');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>el.classList.remove('on'),1800);
 }
 
-// ── BroadcastChannel: recebe comandos do celular ──
-// Celular e TV devem estar na mesma origem (mesmo host)
-const bc=new BroadcastChannel('overblockk_tv');
-bc.onmessage=(e)=>{
-  const msg=e.data;
-  const cols=8;
-  switch(msg.t){
-    case 'up':   setFocus(focusIdx-cols); break;
-    case 'down': setFocus(focusIdx+cols); break;
-    case 'left': setFocus(focusIdx-1);   break;
-    case 'right':setFocus(focusIdx+1);   break;
-    case 'ok':
-      launch(focusIdx);
-      // Manda URL pro celular abrir
-      bc.postMessage({t:'open',url:APPS[focusIdx].url,name:APPS[focusIdx].name});
-      break;
-    case 'toast': toast(msg.text); break;
-  }
-};
+// ── INSTALL PWA ──
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-btn').style.display = 'block';
+});
+function installPWA(){
+  if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt=null; }
+  else { toast('No Safari: Compartilhar → Adicionar à Tela Inicial'); }
+}
 
-// Teclado (pra testar no PC)
-window.addEventListener('keydown',e=>{
-  const cols=8;
-  if(e.key==='ArrowRight') setFocus(focusIdx+1);
-  else if(e.key==='ArrowLeft') setFocus(focusIdx-1);
-  else if(e.key==='ArrowDown') setFocus(focusIdx+cols);
-  else if(e.key==='ArrowUp') setFocus(focusIdx-cols);
-  else if(e.key==='Enter'){launch(focusIdx);bc.postMessage({t:'open',url:APPS[focusIdx].url,name:APPS[focusIdx].name});}
+// ── IOS GUIDE ──
+function showInstallGuide(){
+  const g=document.getElementById('ios-guide');
+  g.style.display=g.style.display==='none'?'block':'none';
+}
+
+// ── STATUS CAST (detecta se há cast ativo — indicativo) ──
+// Não há API direta; usamos o estado da tela como indicador visual
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden){
+    document.getElementById('cast-status').className='cast-status';
+    document.querySelector('.cdot').classList.add('pulse');
+    document.getElementById('cast-txt').textContent='Sem cast ativo';
+  }
 });
 </script>
 </body>
