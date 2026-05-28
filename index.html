@@ -6,34 +6,6 @@
 <title>TV Home — overblockk</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, set, onValue, serverTimestamp }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-
-// ─── COLOQUE SUAS CREDENCIAIS FIREBASE AQUI ───────────────────────────────
-const firebaseConfig = {
-  apiKey:            "COLE_AQUI",
-  authDomain:        "COLE_AQUI",
-  databaseURL:       "COLE_AQUI",   // ex: https://SEU-PROJETO.firebaseio.com
-  projectId:         "COLE_AQUI",
-  storageBucket:     "COLE_AQUI",
-  messagingSenderId: "COLE_AQUI",
-  appId:             "COLE_AQUI"
-};
-// ──────────────────────────────────────────────────────────────────────────
-
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
-
-const params   = new URLSearchParams(location.search);
-const isRemote = params.has('remote');
-const SESSION  = 'tv_session_overblockk'; // chave fixa — mude se quiser multi-TV
-
-window._fbReady = { db, ref, set, onValue, serverTimestamp, isRemote, SESSION };
-window.dispatchEvent(new Event('fb-ready'));
-</script>
 <style>
 :root{
   --bg:#080810;--s1:#111120;--s2:#1a1a30;--s3:#222238;
@@ -47,22 +19,20 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 #tv-mode{display:block}
 #remote-mode{display:none}
 
-/* ── TOPBAR ── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:28px 56px;border-bottom:1px solid var(--border);}
 .logo{font-size:24px;font-weight:900;letter-spacing:-1px;background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .topbar-center{display:flex;align-items:center;gap:20px;}
 .qr-panel{display:flex;align-items:center;gap:14px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:10px 18px 10px 10px;}
-.qr-box{background:#fff;border-radius:8px;padding:6px;width:72px;height:72px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-#qr-canvas{width:60px!important;height:60px!important;}
+.qr-box{background:#fff;border-radius:8px;padding:6px;width:80px;height:80px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .qr-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--sub);}
 .qr-status{font-size:13px;font-weight:600;margin-top:4px;}
 .qr-status.connected{color:var(--green);}
 .qr-status.waiting{color:var(--accent);}
 .live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,91,91,0.15);border:1px solid rgba(245,91,91,0.4);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--red);letter-spacing:1px;}
 .live-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.4s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+#clock{font-size:38px;font-weight:700;letter-spacing:-2px;line-height:1;}
 
-/* ── SEARCH ── */
 .search-section{padding:36px 56px 0;}
 .search-row{display:flex;gap:12px;align-items:stretch;max-width:860px;}
 .search-box{flex:1;display:flex;align-items:center;gap:12px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:0 20px;transition:border-color .2s;}
@@ -75,7 +45,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .etab:hover,.etab.on{color:var(--text);border-color:var(--accent);}
 .etab.on{background:rgba(91,110,245,0.12);}
 
-/* ── GRID ── */
 .sec-label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--sub);padding:0 56px;margin-top:44px;margin-bottom:18px;}
 .apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;padding:0 56px;}
 .app{background:var(--s1);border:1.5px solid var(--border);border-radius:18px;padding:24px 14px 18px;text-align:center;cursor:pointer;text-decoration:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:12px;transition:border-color .18s,transform .18s,background .18s;}
@@ -96,13 +65,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .ftip{font-size:13px;color:var(--sub);}
 kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2px 6px;font-size:11px;font-family:monospace;color:var(--text);}
 
-/* ── SETUP BANNER ── */
-#setup-banner{display:none;background:rgba(245,91,91,0.12);border:1.5px solid rgba(245,91,91,0.4);border-radius:12px;margin:20px 56px;padding:16px 20px;font-size:14px;line-height:1.7;color:var(--text);}
-#setup-banner a{color:var(--accent2);}
-#setup-banner code{background:var(--s2);padding:2px 6px;border-radius:4px;font-size:13px;}
-
-/* ── REMOTE ── */
-#remote-mode{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 32px;}
+/* REMOTE */
+#remote-mode{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 40px;}
 .rm-header{width:100%;background:var(--s1);border-bottom:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;}
 .rm-logo{font-size:18px;font-weight:900;color:var(--accent);}
 .rm-conn{font-size:13px;font-weight:600;}
@@ -115,11 +79,11 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
 .rm-search button{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;color:#fff;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;padding:0 18px;cursor:pointer;}
 .rm-engines{width:100%;padding:10px 16px 0;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
 .rm-engines::-webkit-scrollbar{display:none;}
-.rm-etab{background:var(--s1);border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;font-size:13px;font-family:'Outfit',sans-serif;color:var(--sub);cursor:pointer;white-space:nowrap;transition:all .15s;}
+.rm-etab{background:var(--s1);border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;font-size:13px;font-family:'Outfit',sans-serif;color:var(--sub);cursor:pointer;white-space:nowrap;}
 .rm-etab.on{color:var(--text);border-color:var(--accent);background:rgba(91,110,245,0.15);}
-.rm-dpad{margin-top:20px;display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:8px;}
-.dpad-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,transform .1s;-webkit-tap-highlight-color:transparent;user-select:none;}
-.dpad-btn:active{background:var(--accent);transform:scale(.93);}
+.rm-dpad{margin-top:22px;display:grid;grid-template-columns:repeat(3,68px);grid-template-rows:repeat(3,68px);gap:10px;}
+.dpad-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;user-select:none;}
+.dpad-btn:active{background:var(--accent);transform:scale(.92);}
 .dpad-center{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;font-size:18px;font-weight:700;}
 .dpad-empty{background:transparent;border:none;pointer-events:none;}
 .rm-actions{width:100%;padding:16px 16px 0;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -127,25 +91,20 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
 .act-btn:active{background:rgba(91,110,245,0.25);border-color:var(--accent);}
 .rm-apps-title{width:100%;padding:18px 16px 8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--sub);}
 .rm-apps{width:100%;padding:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.rm-app{background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:14px 8px 12px;text-align:center;cursor:pointer;text-decoration:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent;}
+.rm-app{background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:14px 8px 12px;text-align:center;cursor:pointer;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent;}
 .rm-app:active{border-color:var(--accent);background:var(--s2);}
 .rm-aico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;}
-.rm-aname{font-size:11px;font-weight:600;line-height:1.2;}
-.spin{width:48px;height:48px;border:3px solid var(--s2);border-top-color:var(--accent);border-radius:50%;animation:spin .9s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
+.rm-aname{font-size:11px;font-weight:600;}
+
+/* feedback flash */
+@keyframes flash{0%,100%{opacity:1}50%{opacity:.4}}
+.flashing{animation:flash .3s ease;}
 </style>
 </head>
 <body>
 
-<!-- ══ TV ══ -->
+<!-- ══ TV MODE ══ -->
 <div id="tv-mode">
-  <div id="setup-banner">
-    ⚠️ <strong>Firebase não configurado.</strong> Para o controle remoto funcionar entre dispositivos diferentes,
-    você precisa criar um projeto no <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a>,
-    ativar o <strong>Realtime Database</strong> (modo teste), e colar as credenciais no topo do arquivo HTML onde está escrito
-    <code>COLE_AQUI</code>. É gratuito e leva ~3 minutos.
-  </div>
-
   <div class="topbar">
     <div>
       <div class="logo">⬡ TV HOME</div>
@@ -153,11 +112,11 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
     </div>
     <div class="topbar-center">
       <div class="qr-panel">
-        <div class="qr-box"><div id="qr-canvas"></div></div>
+        <div class="qr-box" id="qr-box"></div>
         <div>
           <div class="qr-label">Controle Remoto</div>
           <div class="qr-status waiting" id="qr-status">Aguardando celular...</div>
-          <div style="font-size:11px;color:var(--sub);margin-top:2px;">Escaneia o QR code</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:2px;" id="qr-hint">Gerando QR...</div>
         </div>
       </div>
       <div class="live-badge"><div class="live-dot"></div>AO VIVO</div>
@@ -216,7 +175,6 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
     <a class="ql" href="https://youtube.com/results?search_query=humor+brasil" target="_blank">😂 Humor BR</a>
     <a class="ql" href="https://globoplay.globo.com/ao-vivo/globo" target="_blank">📺 Globo Ao Vivo</a>
     <a class="ql" href="https://youtube.com/results?search_query=lofi+hip+hop" target="_blank">🎧 Lofi</a>
-    <a class="ql" href="https://youtube.com/results?search_query=nasa+live+stream" target="_blank">🚀 NASA Live</a>
   </div>
 
   <div class="sec-label">Streaming em destaque</div>
@@ -234,14 +192,13 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
   </div>
 </div>
 
-<!-- ══ REMOTE ══ -->
+<!-- ══ REMOTE MODE ══ -->
 <div id="remote-mode">
   <div class="rm-header">
     <div class="rm-logo">⬡ CONTROLE REMOTO</div>
     <div class="rm-conn wait" id="rm-conn-status">⏳ Conectando...</div>
   </div>
-
-  <div id="rm-body" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+  <div style="width:100%;display:flex;flex-direction:column;align-items:center;">
     <div class="rm-search">
       <input type="text" id="rm-search-input" placeholder="Buscar na TV..."/>
       <button onclick="remoteSearch()">→</button>
@@ -272,122 +229,152 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
     </div>
     <div class="rm-apps-title">Abrir na TV</div>
     <div class="rm-apps">
-      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://youtube.com'})"><div class="rm-aico" style="background:#cc0000">▶</div><div class="rm-aname">YouTube</div></a>
-      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://twitch.tv/overblockk'})"><div class="rm-aico" style="background:#9147ff">🎮</div><div class="rm-aname">Twitch</div></a>
-      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://netflix.com'})"><div class="rm-aico" style="background:#e50914">N</div><div class="rm-aname">Netflix</div></a>
-      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://primevideo.com'})"><div class="rm-aico" style="background:#00a8e0">🎬</div><div class="rm-aname">Prime</div></a>
-      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://open.spotify.com'})"><div class="rm-aico" style="background:#1db954">♪</div><div class="rm-aname">Spotify</div></a>
-      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://globoplay.globo.com'})"><div class="rm-aico" style="background:#cc0000">G</div><div class="rm-aname">Globoplay</div></a>
-      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://crunchyroll.com'})"><div class="rm-aico" style="background:#f47521">CR</div><div class="rm-aname">Crunchyroll</div></a>
-      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://disneyplus.com'})"><div class="rm-aico" style="background:#113ccf">D+</div><div class="rm-aname">Disney+</div></a>
+      <div class="rm-app" onclick="pushCmd({t:'open',url:'https://youtube.com'})"><div class="rm-aico" style="background:#cc0000">▶</div><div class="rm-aname">YouTube</div></div>
+      <div class="rm-app" onclick="pushCmd({t:'open',url:'https://twitch.tv/overblockk'})"><div class="rm-aico" style="background:#9147ff">🎮</div><div class="rm-aname">Twitch</div></div>
+      <div class="rm-app" onclick="pushCmd({t:'open',url:'https://netflix.com'})"><div class="rm-aico" style="background:#e50914">N</div><div class="rm-aname">Netflix</div></div>
+      <div class="rm-app" onclick="pushCmd({t:'open',url:'https://primevideo.com'})"><div class="rm-aico" style="background:#00a8e0">🎬</div><div class="rm-aname">Prime</div></div>
+      <div class="rm-app" onclick="pushCmd({t:'open',url:'https://open.spotify.com'})"><div class="rm-aico" style="background:#1db954">♪</div><div class="rm-aname">Spotify</div></div>
+      <div class="rm-app" onclick="pushCmd({t:'open',url:'https://globoplay.globo.com'})"><div class="rm-aico" style="background:#cc0000">G</div><div class="rm-aname">Globoplay</div></div>
+      <div class="rm-app" onclick="pushCmd({t:'open',url:'https://crunchyroll.com'})"><div class="rm-aico" style="background:#f47521">CR</div><div class="rm-aname">Crunchyroll</div></div>
+      <div class="rm-app" onclick="pushCmd({t:'open',url:'https://disneyplus.com'})"><div class="rm-aico" style="background:#113ccf">D+</div><div class="rm-aname">Disney+</div></div>
     </div>
   </div>
 </div>
 
 <script>
-const ENG={google:'https://www.google.com/search?q=',youtube:'https://www.youtube.com/results?search_query=',bing:'https://www.bing.com/search?q=',ddg:'https://duckduckgo.com/?q=',twitch:'https://www.twitch.tv/search?term=',reddit:'https://www.reddit.com/search/?q='};
+// ══════════════════════════════════════════════
+// CONFIGURAÇÃO — Canal de comunicação via
+// Ably Realtime (gratuito, sem backend próprio)
+// Troque ABLY_KEY pela sua chave em:
+// https://ably.com → Free account → API Keys
+// ══════════════════════════════════════════════
+const ABLY_KEY = 'COLE_SUA_CHAVE_ABLY_AQUI';
+// Exemplo: 'xVLRyA.abc123:DEF456ghijklmnop'
+// ══════════════════════════════════════════════
+
+const CHANNEL = 'tv-overblockk-remote';
+const ENG = {
+  google:'https://www.google.com/search?q=',
+  youtube:'https://www.youtube.com/results?search_query=',
+  bing:'https://www.bing.com/search?q=',
+  ddg:'https://duckduckgo.com/?q=',
+  twitch:'https://www.twitch.tv/search?term=',
+  reddit:'https://www.reddit.com/search/?q='
+};
 let eng='google', rmEng='google';
 
-// clock
+// ── Clock ──
 function tick(){
-  const now=new Date();
-  const el=document.getElementById('clock');
-  if(el)el.textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const n=new Date(),el=document.getElementById('clock');
+  if(el)el.textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
   const ds=document.getElementById('date-str');
-  if(ds){const d=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];ds.textContent=d[now.getDay()]+', '+now.getDate()+' de '+m[now.getMonth()];}
+  if(ds){const d=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];ds.textContent=d[n.getDay()]+', '+n.getDate()+' de '+m[n.getMonth()];}
 }
-tick();setInterval(tick,10000);
+tick();setInterval(tick,15000);
 
 function setEng(e,el){eng=e;document.querySelectorAll('.etab').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
 function doSearch(){const q=document.getElementById('search-input').value.trim();if(q)window.open(ENG[eng]+encodeURIComponent(q),'_blank');}
-document.getElementById('search-input')&&document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
 function rmSetEng(e,el){rmEng=e;document.querySelectorAll('.rm-etab').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
 function remoteSearch(){const q=document.getElementById('rm-search-input').value.trim();if(q)pushCmd({t:'search',q,eng:rmEng});}
-document.getElementById('rm-search-input')&&document.getElementById('rm-search-input').addEventListener('keydown',e=>{if(e.key==='Enter')remoteSearch();});
+document.getElementById('rm-search-input').addEventListener('keydown',e=>{if(e.key==='Enter')remoteSearch();});
 
-// Firebase init
-window.addEventListener('fb-ready', () => {
-  const {db, ref, set, onValue, serverTimestamp, isRemote, SESSION} = window._fbReady;
-  const cmdRef = ref(db, SESSION + '/cmd');
+// ── Executa comando na TV ──
+function execCmd(d){
+  if(d.t==='search') window.open((ENG[d.eng]||ENG.google)+encodeURIComponent(d.q),'_blank');
+  else if(d.t==='open') window.open(d.url,'_blank');
+  else if(d.t==='scroll') window.scrollBy({top:d.d==='down'?320:-320,behavior:'smooth'});
+  else if(d.t==='fullscreen'){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}
+  else if(d.t==='reload') location.reload();
+  else if(d.t==='nav'){if(d.d==='back')history.back();else history.forward();}
+  else if(d.t==='mute') document.querySelectorAll('video,audio').forEach(m=>m.muted=!m.muted);
+  else if(d.t==='vol') document.querySelectorAll('video,audio').forEach(m=>m.volume=Math.max(0,Math.min(1,m.volume+(d.d==='up'?.1:-.1))));
+}
 
-  if (!isRemote) {
-    // ── TV MODE ──
-    const params = new URLSearchParams(location.search);
-    const configured = !document.querySelector('script[type="module"]').textContent.includes('"COLE_AQUI"');
+// ── Detecta modo ──
+const isRemote = new URLSearchParams(location.search).has('remote');
 
-    // Verifica se Firebase foi configurado
-    const scriptContent = document.querySelector('script[type="module"]').textContent;
-    if (scriptContent.includes('COLE_AQUI')) {
-      document.getElementById('setup-banner').style.display = 'block';
-    }
+if(isRemote){
+  document.getElementById('tv-mode').style.display='none';
+  document.getElementById('remote-mode').style.display='flex';
+} else {
+  // Gera QR imediatamente
+  const remoteUrl = location.href.split('?')[0]+'?remote=1';
+  document.getElementById('qr-hint').textContent = 'Escaneia com o celular';
+  new QRCode(document.getElementById('qr-box'),{
+    text: remoteUrl, width:68, height:68,
+    colorDark:'#000', colorLight:'#fff',
+    correctLevel: QRCode.CorrectLevel.L
+  });
+}
 
-    // QR Code (já gerado fora do fb-ready, mas por segurança gera aqui também)
-    if (!document.getElementById('qr-canvas').querySelector('canvas,img')) {
-      const remoteUrl = location.href.split('?')[0] + '?remote=1';
-      new QRCode(document.getElementById('qr-canvas'), {
-        text: remoteUrl, width: 60, height: 60,
-        colorDark: '#000', colorLight: '#fff',
-        correctLevel: QRCode.CorrectLevel.L
-      });
-    }
+// ── Ably ──
+if(ABLY_KEY === '61pamw.ydiydA:v5PYjxvIsCLO12t4GW6L_dmiTePhDixkdurX0uM9UgU'){
+  // Sem chave: mostra aviso mínimo no status
+  if(!isRemote){
+    document.getElementById('qr-status').textContent='⚠️ Configure Ably abaixo';
+    document.getElementById('qr-status').style.color='var(--red)';
+    document.getElementById('qr-hint').innerHTML='Veja as instruções no rodapé';
+  } else {
+    document.getElementById('rm-conn-status').textContent='⚠️ Sem chave Ably';
+    document.getElementById('rm-conn-status').className='rm-conn off';
+  }
+} else {
+  // Carrega Ably dinamicamente
+  const s = document.createElement('script');
+  s.src = 'https://cdn.ably.com/lib/ably.min-2.js';
+  s.onload = () => {
+    const ably = new Ably.Realtime({ key: ABLY_KEY });
+    const ch   = ably.channels.get(CHANNEL);
 
-    let lastTs = null;
-    onValue(cmdRef, snap => {
-      const data = snap.val();
-      if (!data || data.ts === lastTs) return;
-      lastTs = data.ts;
-      execCmd(data);
-      document.getElementById('qr-status').textContent = '✓ Conectado!';
-      document.getElementById('qr-status').className = 'qr-status connected';
-      setTimeout(()=>{
-        document.getElementById('qr-status').textContent = 'Aguardando celular...';
-        document.getElementById('qr-status').className = 'qr-status waiting';
-      }, 3000);
+    ably.connection.on('connected', () => {
+      if(isRemote){
+        document.getElementById('rm-conn-status').textContent='✓ Conectado';
+        document.getElementById('rm-conn-status').className='rm-conn ok';
+      }
     });
 
-  } else {
-    // ── REMOTE MODE ──
-    document.getElementById('rm-conn-status').textContent = '✓ Pronto';
-    document.getElementById('rm-conn-status').className = 'rm-conn ok';
-
-    window.pushCmd = function(cmd) {
-      cmd.ts = Date.now();
-      set(cmdRef, cmd);
-    };
-  }
-
-  function execCmd(d) {
-    if (d.t==='search') window.open((ENG[d.eng]||ENG.google)+encodeURIComponent(d.q),'_blank');
-    else if(d.t==='open') window.open(d.url,'_blank');
-    else if(d.t==='scroll') window.scrollBy({top:d.d==='down'?320:-320,behavior:'smooth'});
-    else if(d.t==='fullscreen'){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}
-    else if(d.t==='reload') location.reload();
-    else if(d.t==='nav'){if(d.d==='back')history.back();else history.forward();}
-    else if(d.t==='mute') document.querySelectorAll('video,audio').forEach(m=>m.muted=!m.muted);
-    else if(d.t==='vol') document.querySelectorAll('video,audio').forEach(m=>m.volume=Math.max(0,Math.min(1,m.volume+(d.d==='up'?.1:-.1))));
-  }
-});
-
-// decide modo + gera QR imediatamente (sem esperar Firebase)
-const _p = new URLSearchParams(location.search);
-if (_p.has('remote')) {
-  document.getElementById('tv-mode').style.display = 'none';
-  document.getElementById('remote-mode').style.display = 'flex';
-} else {
-  // QR gerado assim que a lib qrcodejs carrega, sem depender do Firebase
-  const _qrUrl = location.href.split('?')[0] + '?remote=1';
-  function _tryQR() {
-    if (typeof QRCode !== 'undefined') {
-      new QRCode(document.getElementById('qr-canvas'), {
-        text: _qrUrl, width: 60, height: 60,
-        colorDark: '#000', colorLight: '#fff',
-        correctLevel: QRCode.CorrectLevel.L
+    if(!isRemote){
+      // TV escuta comandos
+      ch.subscribe('cmd', msg => {
+        execCmd(msg.data);
+        const st = document.getElementById('qr-status');
+        st.textContent='✓ Celular conectado!';
+        st.className='qr-status connected';
+        setTimeout(()=>{st.textContent='Aguardando celular...';st.className='qr-status waiting';},3000);
       });
     } else {
-      setTimeout(_tryQR, 100);
+      // Celular publica comandos
+      window.pushCmd = cmd => {
+        ch.publish('cmd', cmd);
+        // flash feedback
+        if(event && event.currentTarget){
+          const el=event.currentTarget;
+          el.classList.add('flashing');
+          setTimeout(()=>el.classList.remove('flashing'),350);
+        }
+      };
     }
-  }
-  _tryQR();
+  };
+  document.head.appendChild(s);
+}
+
+// pushCmd default (sem Ably configurado)
+if(typeof pushCmd==='undefined') window.pushCmd = () => alert('Configure a chave Ably para usar o controle remoto entre dispositivos.');
+</script>
+
+<!-- Instruções quando sem chave -->
+<div id="instrucoes" style="display:none"></div>
+<script>
+if(ABLY_KEY==='COLE_SUA_CHAVE_ABLY_AQUI' && !isRemote){
+  const b=document.createElement('div');
+  b.style.cssText='margin:20px 56px;padding:20px;background:rgba(91,110,245,0.08);border:1.5px solid rgba(91,110,245,0.3);border-radius:14px;font-size:14px;line-height:1.9;color:var(--text)';
+  b.innerHTML=`<strong style="color:var(--accent2)">📡 Configure o controle remoto em 2 minutos:</strong><br>
+1. Acesse <a href="https://ably.com" target="_blank" style="color:var(--accent)">ably.com</a> e crie uma conta gratuita<br>
+2. No painel, vá em <strong>API Keys</strong> e copie a chave que começa com algo como <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">xVLRyA.abc123:...</code><br>
+3. No seu arquivo HTML (no Vercel), troque <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">COLE_SUA_CHAVE_ABLY_AQUI</code> pela sua chave<br>
+4. Faça o deploy — pronto! O QR já está gerado, é só escanear 📱`;
+  document.querySelector('.footer').before(b);
 }
 </script>
 </body>
