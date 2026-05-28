@@ -321,13 +321,15 @@ window.addEventListener('fb-ready', () => {
       document.getElementById('setup-banner').style.display = 'block';
     }
 
-    // QR Code
-    const remoteUrl = location.href.split('?')[0] + '?remote=1';
-    new QRCode(document.getElementById('qr-canvas'), {
-      text: remoteUrl, width: 60, height: 60,
-      colorDark: '#000', colorLight: '#fff',
-      correctLevel: QRCode.CorrectLevel.L
-    });
+    // QR Code (já gerado fora do fb-ready, mas por segurança gera aqui também)
+    if (!document.getElementById('qr-canvas').querySelector('canvas,img')) {
+      const remoteUrl = location.href.split('?')[0] + '?remote=1';
+      new QRCode(document.getElementById('qr-canvas'), {
+        text: remoteUrl, width: 60, height: 60,
+        colorDark: '#000', colorLight: '#fff',
+        correctLevel: QRCode.CorrectLevel.L
+      });
+    }
 
     let lastTs = null;
     onValue(cmdRef, snap => {
@@ -366,11 +368,26 @@ window.addEventListener('fb-ready', () => {
   }
 });
 
-// decide modo
+// decide modo + gera QR imediatamente (sem esperar Firebase)
 const _p = new URLSearchParams(location.search);
 if (_p.has('remote')) {
   document.getElementById('tv-mode').style.display = 'none';
   document.getElementById('remote-mode').style.display = 'flex';
+} else {
+  // QR gerado assim que a lib qrcodejs carrega, sem depender do Firebase
+  const _qrUrl = location.href.split('?')[0] + '?remote=1';
+  function _tryQR() {
+    if (typeof QRCode !== 'undefined') {
+      new QRCode(document.getElementById('qr-canvas'), {
+        text: _qrUrl, width: 60, height: 60,
+        colorDark: '#000', colorLight: '#fff',
+        correctLevel: QRCode.CorrectLevel.L
+      });
+    } else {
+      setTimeout(_tryQR, 100);
+    }
+  }
+  _tryQR();
 }
 </script>
 </body>
