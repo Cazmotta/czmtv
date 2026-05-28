@@ -248,7 +248,7 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
 // Troque ABLY_KEY pela sua chave em:
 // https://ably.com → Free account → API Keys
 // ══════════════════════════════════════════════
-const ABLY_KEY = '61pamw.ydiydA:v5PYjxvIsCLO12t4GW6L_dmiTePhDixkdurX0uM9UgU';
+const ABLY_KEY = '61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4';
 // Exemplo: 'xVLRyA.abc123:DEF456ghijklmnop'
 // ══════════════════════════════════════════════
 
@@ -309,7 +309,7 @@ if(isRemote){
 }
 
 // ── Ably ──
-if(ABLY_KEY === '61pamw.ydiydA:v5PYjxvIsCLO12t4GW6L_dmiTePhDixkdurX0uM9UgU'){
+if(ABLY_KEY === '61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4'){
   // Sem chave: mostra aviso mínimo no status
   if(!isRemote){
     document.getElementById('qr-status').textContent='⚠️ Configure Ably abaixo';
@@ -328,11 +328,22 @@ if(ABLY_KEY === '61pamw.ydiydA:v5PYjxvIsCLO12t4GW6L_dmiTePhDixkdurX0uM9UgU'){
     const ch   = ably.channels.get(CHANNEL);
 
     ably.connection.on('connected', () => {
+      console.log('✅ Ably conectado!');
       if(isRemote){
         document.getElementById('rm-conn-status').textContent='✓ Conectado';
         document.getElementById('rm-conn-status').className='rm-conn ok';
+      } else {
+        document.getElementById('qr-status').textContent='✓ Ably ok — aguardando celular';
+        document.getElementById('qr-status').className='qr-status connected';
       }
     });
+    ably.connection.on('failed', err => {
+      console.error('❌ Ably falhou:', err);
+      const msg = '❌ Erro: ' + (err.message || 'verifique a key');
+      if(isRemote){ document.getElementById('rm-conn-status').textContent=msg; document.getElementById('rm-conn-status').className='rm-conn off'; }
+      else { document.getElementById('qr-status').textContent=msg; document.getElementById('qr-status').style.color='var(--red)'; }
+    });
+    ably.connection.on('disconnected', () => console.warn('⚠️ Ably desconectado'));
 
     if(!isRemote){
       // TV escuta comandos
@@ -366,13 +377,13 @@ if(typeof pushCmd==='undefined') window.pushCmd = () => alert('Configure a chave
 <!-- Instruções quando sem chave -->
 <div id="instrucoes" style="display:none"></div>
 <script>
-if(ABLY_KEY==='61pamw.ydiydA:v5PYjxvIsCLO12t4GW6L_dmiTePhDixkdurX0uM9UgU' && !isRemote){
+if(ABLY_KEY==='61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4' && !isRemote){
   const b=document.createElement('div');
   b.style.cssText='margin:20px 56px;padding:20px;background:rgba(91,110,245,0.08);border:1.5px solid rgba(91,110,245,0.3);border-radius:14px;font-size:14px;line-height:1.9;color:var(--text)';
   b.innerHTML=`<strong style="color:var(--accent2)">📡 Configure o controle remoto em 2 minutos:</strong><br>
 1. Acesse <a href="https://ably.com" target="_blank" style="color:var(--accent)">ably.com</a> e crie uma conta gratuita<br>
 2. No painel, vá em <strong>API Keys</strong> e copie a chave que começa com algo como <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">xVLRyA.abc123:...</code><br>
-3. No seu arquivo HTML (no Vercel), troque <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">61pamw.ydiydA:v5PYjxvIsCLO12t4GW6L_dmiTePhDixkdurX0uM9UgU</code> pela sua chave<br>
+3. No seu arquivo HTML (no Vercel), troque <code style="background:var(--s2);padding:2px 6px;border-radius:4px;">61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4</code> pela sua chave<br>
 4. Faça o deploy — pronto! O QR já está gerado, é só escanear 📱`;
   document.querySelector('.footer').before(b);
 }
