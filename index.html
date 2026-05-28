@@ -2,511 +2,241 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>TV Home — overblockk</title>
+<meta name="viewport" content="width=1920">
+<title>overblockk TV</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{
-  --bg:#080810;--s1:#111120;--s2:#1a1a30;--s3:#222238;
+  --bg:#080810;--s1:#111120;--s2:#1a1a30;
   --accent:#5b6ef5;--accent2:#c45bff;--green:#3ecf8e;
   --red:#f55b5b;--text:#f4f4ff;--sub:#8888bb;--border:rgba(91,110,245,0.2);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow:hidden;}
-
-/* ══ TV SHELL ══ */
-#tv-shell{
-  position:fixed;inset:0;display:flex;flex-direction:column;
-  background:var(--bg);
-  background-image:radial-gradient(ellipse 900px 500px at 10% -10%,rgba(91,110,245,0.1) 0%,transparent 70%),
-  radial-gradient(ellipse 600px 400px at 90% 110%,rgba(196,91,255,0.08) 0%,transparent 60%);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:1920px;height:1080px;overflow:hidden;}
+body{
+  font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);
+  background-image:
+    radial-gradient(ellipse 900px 500px at 10% -10%,rgba(91,110,245,0.1) 0%,transparent 70%),
+    radial-gradient(ellipse 600px 400px at 90% 110%,rgba(196,91,255,0.08) 0%,transparent 60%);
 }
-#remote-mode{display:none;flex-direction:column;align-items:center;min-height:100vh;overflow-y:auto;padding-bottom:40px;}
 
-/* TOPBAR */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--border);flex-shrink:0;background:rgba(8,8,16,0.95);backdrop-filter:blur(12px);z-index:10;}
-.logo{font-size:20px;font-weight:900;letter-spacing:-1px;background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.topbar-mid{display:flex;align-items:center;gap:14px;}
-.qr-panel{display:flex;align-items:center;gap:10px;background:var(--s1);border:1.5px solid var(--border);border-radius:12px;padding:8px 14px 8px 8px;}
-.qr-box{background:#fff;border-radius:6px;padding:4px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.qr-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--sub);}
-.qr-status{font-size:12px;font-weight:600;margin-top:3px;}
-.qr-status.ok{color:var(--green);}
-.qr-status.wait{color:var(--accent);}
-.live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(245,91,91,0.15);border:1px solid rgba(245,91,91,0.4);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--red);}
-.live-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.4s ease-in-out infinite;}
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px 80px;border-bottom:1px solid var(--border);
+  background:rgba(8,8,16,0.85);backdrop-filter:blur(16px);
+}
+.logo{font-size:36px;font-weight:900;letter-spacing:-2px;
+  background:linear-gradient(120deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+#clock{font-size:52px;font-weight:300;letter-spacing:-2px;line-height:1;}
+#date-str{font-size:18px;color:var(--sub);text-align:right;margin-top:4px;}
+.conn{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;
+  background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.3);
+  border-radius:10px;padding:10px 20px;color:var(--green);}
+.conn-dot{width:8px;height:8px;background:var(--green);border-radius:50%;
+  animation:pulse 1.4s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
-#clock{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1;}
-#date-str{font-size:11px;color:var(--sub);text-align:right;margin-top:2px;}
 
-/* BROWSER BAR */
-#browser-bar{display:none;align-items:center;gap:8px;padding:8px 16px;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;}
-#browser-bar button{background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:6px 12px;cursor:pointer;font-family:'Outfit',sans-serif;}
-#browser-bar button:hover{border-color:var(--accent);}
-#url-bar{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;outline:none;}
-#url-bar:focus{border-color:var(--accent);}
-#iframe-wrap{flex:1;position:relative;overflow:hidden;}
-#content-iframe{width:100%;height:100%;border:none;display:block;}
+/* ── HOME ── */
+#home{padding:40px 80px;height:calc(1080px - 113px);overflow:hidden;}
+.sec-label{font-size:13px;font-weight:700;letter-spacing:4px;text-transform:uppercase;
+  color:var(--sub);margin-bottom:20px;}
+.apps{display:grid;grid-template-columns:repeat(8,1fr);gap:16px;margin-bottom:44px;}
+.app{
+  background:var(--s1);border:2px solid var(--border);border-radius:22px;
+  padding:24px 12px 20px;text-align:center;display:flex;flex-direction:column;
+  align-items:center;gap:12px;transition:border-color .2s,transform .2s,background .2s;
+}
+.app.focused{
+  border-color:var(--accent2);background:var(--s2);transform:scale(1.07);
+  box-shadow:0 0 0 6px rgba(196,91,255,0.18),0 8px 32px rgba(196,91,255,0.2);
+}
+.app-ico{width:72px;height:72px;border-radius:20px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;font-weight:900;color:#fff;}
+.app-name{font-size:16px;font-weight:600;}
 
-/* HOME */
-#home-content{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--s3) transparent;}
-.search-section{padding:20px 32px 0;}
-.search-row{display:flex;gap:10px;max-width:800px;}
-.search-box{flex:1;display:flex;align-items:center;gap:10px;background:var(--s1);border:1.5px solid var(--border);border-radius:12px;padding:0 16px;}
-.search-box:focus-within{border-color:var(--accent);}
-#search-input{flex:1;background:none;border:none;outline:none;font-family:'Outfit',sans-serif;font-size:18px;color:var(--text);padding:13px 0;}
-#search-input::placeholder{color:var(--sub);}
-.search-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;color:#fff;font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;padding:0 24px;cursor:pointer;height:48px;}
-.engines{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.etab{background:var(--s1);border:1.5px solid var(--border);border-radius:8px;padding:6px 14px;font-size:13px;font-family:'Outfit',sans-serif;color:var(--sub);cursor:pointer;}
-.etab.on{color:var(--text);border-color:var(--accent);background:rgba(91,110,245,0.12);}
+/* ── LAUNCH OVERLAY ── */
+#launch{
+  position:absolute;inset:0;background:var(--bg);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:28px;
+  background-image:radial-gradient(ellipse 700px 500px at 50% 40%,rgba(91,110,245,0.15) 0%,transparent 70%);
+}
+#launch.on{display:flex;}
+.launch-ico{font-size:100px;line-height:1;}
+.launch-name{font-size:64px;font-weight:900;}
+.launch-sub{font-size:26px;color:var(--sub);}
+.launch-bar{width:400px;height:5px;background:var(--s2);border-radius:3px;overflow:hidden;margin-top:8px;}
+.launch-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width 2.2s ease;}
 
-.sec-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--sub);padding:0 32px;margin-top:28px;margin-bottom:12px;}
-.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;padding:0 32px;}
-.app{background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:18px 10px 14px;text-align:center;cursor:pointer;text-decoration:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:10px;transition:border-color .15s,transform .15s;}
-.app:hover,.app.focused{border-color:var(--accent);background:var(--s2);transform:translateY(-3px);}
-.aico{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;}
-.aname{font-size:12px;font-weight:600;}
+/* ── TOAST ── */
+#toast{
+  position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+  background:var(--s2);border:1.5px solid var(--border);border-radius:18px;
+  padding:20px 44px;font-size:24px;font-weight:600;
+  opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;
+}
+#toast.on{opacity:1;}
 
-.qlinks{display:flex;gap:8px;flex-wrap:wrap;padding:0 32px;}
-.ql{background:var(--s1);border:1.5px solid var(--border);border-radius:50px;padding:8px 16px;font-size:13px;font-family:'Outfit',sans-serif;color:var(--text);text-decoration:none;cursor:pointer;}
-.ql:hover,.ql.focused{border-color:var(--accent);background:var(--s2);}
-
-.srow{display:flex;gap:12px;padding:0 32px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px;}
-.srow::-webkit-scrollbar{display:none;}
-.scard{flex:0 0 180px;background:var(--s1);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;text-decoration:none;color:var(--text);cursor:pointer;}
-.scard:hover,.scard.focused{border-color:var(--accent);}
-.sthumb{height:90px;display:flex;align-items:center;justify-content:center;font-size:40px;}
-.sinfo{padding:10px 12px 12px;}
-.stitle{font-size:13px;font-weight:600;margin-bottom:2px;}
-.ssub{font-size:11px;color:var(--sub);}
-
-/* CURSOR */
-#tv-cursor{
-  position:fixed;z-index:9999;pointer-events:none;
-  border:3px solid var(--accent2);border-radius:16px;
-  box-shadow:0 0 0 4px rgba(196,91,255,0.2),0 0 20px rgba(196,91,255,0.3);
-  background:rgba(196,91,255,0.06);
-  transition:all 0.12s cubic-bezier(.4,0,.2,1);
+/* ── CURSOR ── */
+#cursor{
+  position:fixed;pointer-events:none;z-index:9999;
+  border:3px solid var(--accent2);border-radius:20px;
+  box-shadow:0 0 0 5px rgba(196,91,255,0.18),0 0 24px rgba(196,91,255,0.3);
+  background:rgba(196,91,255,0.05);
+  transition:all 0.15s cubic-bezier(.4,0,.2,1);
   display:none;
 }
-
-/* ══ REMOTE ══ */
-#remote-mode{background:var(--bg);}
-.rm-header{width:100%;background:var(--s1);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.rm-logo{font-size:17px;font-weight:900;color:var(--accent);}
-.rm-conn{font-size:13px;font-weight:600;}
-.rm-conn.ok{color:var(--green);}
-.rm-conn.off{color:var(--red);}
-.rm-conn.wait{color:var(--accent);}
-
-.rm-search{width:100%;padding:14px 14px 0;display:flex;gap:8px;}
-.rm-search input{flex:1;background:var(--s1);border:1.5px solid var(--border);border-radius:10px;padding:13px 14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:16px;outline:none;}
-.rm-search input:focus{border-color:var(--accent);}
-.rm-search button{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;padding:0 16px;cursor:pointer;}
-.rm-engines{width:100%;padding:8px 14px 0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
-.rm-engines::-webkit-scrollbar{display:none;}
-.rm-etab{background:var(--s1);border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-family:'Outfit',sans-serif;color:var(--sub);cursor:pointer;white-space:nowrap;}
-.rm-etab.on{color:var(--text);border-color:var(--accent);background:rgba(91,110,245,0.15);}
-
-/* DPAD */
-.rm-dpad{margin-top:18px;display:grid;grid-template-columns:repeat(3,70px);grid-template-rows:repeat(3,70px);gap:8px;}
-.dpad-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;user-select:none;transition:background .1s;}
-.dpad-btn:active{background:var(--accent);transform:scale(.92);}
-.dpad-ok{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;font-size:17px;font-weight:700;color:#fff;}
-.dpad-empty{background:transparent;border:none;pointer-events:none;}
-
-.rm-actions{width:100%;padding:12px 14px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.act-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:14px 6px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;}
-.act-btn:active{background:rgba(91,110,245,0.25);border-color:var(--accent);}
-
-.rm-apps-title{width:100%;padding:16px 14px 8px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--sub);}
-.rm-apps{width:100%;padding:0 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-.rm-app{background:var(--s1);border:1.5px solid var(--border);border-radius:12px;padding:12px 6px 10px;text-align:center;cursor:pointer;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent;}
-.rm-app:active{border-color:var(--accent);background:var(--s2);}
-.rm-aico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff;}
-.rm-aname{font-size:10px;font-weight:600;}
-
-@keyframes flash{0%,100%{opacity:1}50%{opacity:.35}}
-.flashing{animation:flash .25s ease;}
 </style>
 </head>
 <body>
 
-<!-- ══ TV SHELL ══ -->
-<div id="tv-shell">
-  <div class="topbar">
-    <div>
-      <div class="logo">⬡ TV HOME</div>
-      <div style="font-size:11px;color:var(--sub);margin-top:2px;">overblockk</div>
-    </div>
-    <div class="topbar-mid">
-      <div class="qr-panel">
-        <div class="qr-box" id="qr-box"></div>
-        <div>
-          <div class="qr-label">Controle</div>
-          <div class="qr-status wait" id="qr-status">Aguardando...</div>
-        </div>
-      </div>
-      <div class="live-badge"><div class="live-dot"></div>AO VIVO</div>
-    </div>
-    <div>
-      <div id="clock">00:00</div>
-      <div id="date-str"></div>
-    </div>
+<div class="topbar">
+  <div>
+    <div class="logo">⬡ overblockk TV</div>
   </div>
-
-  <!-- BROWSER BAR (aparece quando abre um site) -->
-  <div id="browser-bar">
-    <button onclick="goHome()" title="Home">⬡ Home</button>
-    <button onclick="iframeBack()" title="Voltar">←</button>
-    <button onclick="iframeFwd()" title="Avançar">→</button>
-    <input id="url-bar" type="text" placeholder="URL..." onkeydown="if(event.key==='Enter')navigateTo(this.value)"/>
-    <button onclick="navigateTo(document.getElementById('url-bar').value)">Ir</button>
-  </div>
-
-  <!-- HOME -->
-  <div id="home-content">
-    <div class="search-section">
-      <div class="search-row">
-        <div class="search-box">
-          <span style="font-size:18px;opacity:.4">🔍</span>
-          <input type="text" id="search-input" placeholder="Buscar na internet..." autocomplete="off"/>
-        </div>
-        <button class="search-btn" onclick="doSearch()">Buscar →</button>
-      </div>
-      <div class="engines">
-        <div class="etab on" onclick="setEng('google',this)">Google</div>
-        <div class="etab" onclick="setEng('youtube',this)">YouTube</div>
-        <div class="etab" onclick="setEng('bing',this)">Bing</div>
-        <div class="etab" onclick="setEng('ddg',this)">DuckDuckGo</div>
-        <div class="etab" onclick="setEng('twitch',this)">Twitch</div>
-      </div>
-    </div>
-
-    <div class="sec-label">Aplicativos</div>
-    <div class="apps" id="apps-grid">
-      <div class="app" onclick="openSite('https://youtube.com')"><div class="aico" style="background:#cc0000">▶</div><div class="aname">YouTube</div></div>
-      <div class="app" onclick="openSite('https://twitch.tv/overblockk')"><div class="aico" style="background:#9147ff">🎮</div><div class="aname">Twitch</div></div>
-      <div class="app" onclick="openSite('https://netflix.com')"><div class="aico" style="background:#e50914">N</div><div class="aname">Netflix</div></div>
-      <div class="app" onclick="openSite('https://primevideo.com')"><div class="aico" style="background:#00a8e0">🎬</div><div class="aname">Prime</div></div>
-      <div class="app" onclick="openSite('https://open.spotify.com')"><div class="aico" style="background:#1db954">♪</div><div class="aname">Spotify</div></div>
-      <div class="app" onclick="openSite('https://globoplay.globo.com')"><div class="aico" style="background:#cc0000">G</div><div class="aname">Globoplay</div></div>
-      <div class="app" onclick="openSite('https://crunchyroll.com')"><div class="aico" style="background:#f47521">CR</div><div class="aname">Crunchyroll</div></div>
-      <div class="app" onclick="openSite('https://disneyplus.com')"><div class="aico" style="background:#113ccf">D+</div><div class="aname">Disney+</div></div>
-      <div class="app" onclick="openSite('https://hbomax.com')"><div class="aico" style="background:#5822b4">MAX</div><div class="aname">Max</div></div>
-      <div class="app" onclick="openSite('https://twitter.com')"><div class="aico" style="background:#111">𝕏</div><div class="aname">Twitter</div></div>
-      <div class="app" onclick="openSite('https://reddit.com')"><div class="aico" style="background:#ff4500">R</div><div class="aname">Reddit</div></div>
-      <div class="app" onclick="openSite('https://globoplay.globo.com/ao-vivo/globo')"><div class="aico" style="background:#0055aa">G1</div><div class="aname">Globo AO VIVO</div></div>
-      <div class="app" onclick="openSite('https://maps.google.com')"><div class="aico" style="background:#34a853">📍</div><div class="aname">Maps</div></div>
-      <div class="app" onclick="openSite('https://uol.com.br')"><div class="aico" style="background:#ff6600">UOL</div><div class="aname">UOL</div></div>
-      <div class="app" onclick="openSite('https://twitch.tv/directory')"><div class="aico" style="background:#6441a5">📡</div><div class="aname">Twitch Dir.</div></div>
-      <div class="app" onclick="openSite('https://globo.com/esporte')"><div class="aico" style="background:#009922">⚽</div><div class="aname">Esportes</div></div>
-    </div>
-
-    <div class="sec-label">Acesso rápido</div>
-    <div class="qlinks">
-      <div class="ql" onclick="openSite('https://youtube.com/results?search_query=filmes+completos+dublados')">🎬 Filmes grátis</div>
-      <div class="ql" onclick="openSite('https://youtube.com/results?search_query=anime+dublado+completo')">🍥 Animes</div>
-      <div class="ql" onclick="openSite('https://youtube.com/results?search_query=musicas+mais+tocadas+brasil')">🎵 Músicas</div>
-      <div class="ql" onclick="openSite('https://twitch.tv/directory/game/Just+Chatting')">💬 Just Chatting</div>
-      <div class="ql" onclick="openSite('https://youtube.com/results?search_query=documentarios+em+portugues')">🌍 Documentários</div>
-      <div class="ql" onclick="openSite('https://youtube.com/results?search_query=humor+brasil')">😂 Humor BR</div>
-      <div class="ql" onclick="openSite('https://globoplay.globo.com/ao-vivo/globo')">📺 Globo Ao Vivo</div>
-      <div class="ql" onclick="openSite('https://youtube.com/results?search_query=lofi+hip+hop')">🎧 Lofi</div>
-    </div>
-
-    <div class="sec-label">Streaming</div>
-    <div class="srow">
-      <div class="scard" onclick="openSite('https://twitch.tv/overblockk')"><div class="sthumb" style="background:#1a0a2e">🎮</div><div class="sinfo"><div class="stitle">overblockk</div><div class="ssub">Twitch</div></div></div>
-      <div class="scard" onclick="openSite('https://youtube.com/results?search_query=live+agora+brasil')"><div class="sthumb" style="background:#1a0000">📺</div><div class="sinfo"><div class="stitle">Lives BR</div><div class="ssub">YouTube ao vivo</div></div></div>
-      <div class="scard" onclick="openSite('https://twitch.tv/directory')"><div class="sthumb" style="background:#0f0a1e">📡</div><div class="sinfo"><div class="stitle">Twitch Dir.</div><div class="ssub">Todos os canais</div></div></div>
-      <div class="scard" onclick="openSite('https://globoplay.globo.com/ao-vivo/globo')"><div class="sthumb" style="background:#1a0000">🔴</div><div class="sinfo"><div class="stitle">Globo Ao Vivo</div><div class="ssub">TV aberta</div></div></div>
-      <div class="scard" onclick="openSite('https://youtube.com/results?search_query=lofi+hip+hop+radio')"><div class="sthumb" style="background:#0a0a1a">🎧</div><div class="sinfo"><div class="stitle">Lofi Radio</div><div class="ssub">Contínua</div></div></div>
-    </div>
-    <div style="height:32px;"></div>
-  </div>
-
-  <!-- IFRAME (sites) -->
-  <div id="iframe-wrap" style="display:none;">
-    <iframe id="content-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"></iframe>
+  <div class="conn"><div class="conn-dot"></div>Ao Vivo</div>
+  <div>
+    <div id="clock">00:00</div>
+    <div id="date-str"></div>
   </div>
 </div>
 
-<!-- CURSOR -->
-<div id="tv-cursor"></div>
-
-<!-- ══ REMOTE MODE ══ -->
-<div id="remote-mode">
-  <div class="rm-header">
-    <div class="rm-logo">⬡ CONTROLE</div>
-    <div class="rm-conn wait" id="rm-conn-status">⏳ Conectando...</div>
-  </div>
-  <div class="rm-search">
-    <input type="text" id="rm-search-input" placeholder="Buscar na TV..."/>
-    <button onclick="remoteSearch()">→</button>
-  </div>
-  <div class="rm-engines">
-    <div class="rm-etab on" onclick="rmSetEng('google',this)">Google</div>
-    <div class="rm-etab" onclick="rmSetEng('youtube',this)">YouTube</div>
-    <div class="rm-etab" onclick="rmSetEng('bing',this)">Bing</div>
-    <div class="rm-etab" onclick="rmSetEng('ddg',this)">DDG</div>
-    <div class="rm-etab" onclick="rmSetEng('twitch',this)">Twitch</div>
-  </div>
-
-  <div class="rm-dpad">
-    <div class="dpad-empty"></div>
-    <div class="dpad-btn" onclick="pushCmd({t:'nav',d:'up'})">▲</div>
-    <div class="dpad-empty"></div>
-    <div class="dpad-btn" onclick="pushCmd({t:'nav',d:'left'})">◀</div>
-    <div class="dpad-btn dpad-ok" onclick="pushCmd({t:'select'})">OK</div>
-    <div class="dpad-btn" onclick="pushCmd({t:'nav',d:'right'})">▶</div>
-    <div class="dpad-empty"></div>
-    <div class="dpad-btn" onclick="pushCmd({t:'nav',d:'down'})">▼</div>
-    <div class="dpad-empty"></div>
-  </div>
-
-  <div class="rm-actions">
-    <div class="act-btn" onclick="pushCmd({t:'home'})">⬡ Home</div>
-    <div class="act-btn" onclick="pushCmd({t:'back'})">← Voltar</div>
-    <div class="act-btn" onclick="pushCmd({t:'fwd'})">→ Avançar</div>
-    <div class="act-btn" onclick="pushCmd({t:'scroll',d:'up'})">↑ Rolar</div>
-    <div class="act-btn" onclick="pushCmd({t:'scroll',d:'down'})">↓ Rolar</div>
-    <div class="act-btn" onclick="pushCmd({t:'fullscreen'})">⛶ Tela cheia</div>
-  </div>
-
-  <div class="rm-apps-title">Abrir na TV</div>
-  <div class="rm-apps">
-    <div class="rm-app" onclick="pushCmd({t:'open',url:'https://youtube.com'})"><div class="rm-aico" style="background:#cc0000">▶</div><div class="rm-aname">YouTube</div></div>
-    <div class="rm-app" onclick="pushCmd({t:'open',url:'https://twitch.tv/overblockk'})"><div class="rm-aico" style="background:#9147ff">🎮</div><div class="rm-aname">Twitch</div></div>
-    <div class="rm-app" onclick="pushCmd({t:'open',url:'https://netflix.com'})"><div class="rm-aico" style="background:#e50914">N</div><div class="rm-aname">Netflix</div></div>
-    <div class="rm-app" onclick="pushCmd({t:'open',url:'https://primevideo.com'})"><div class="rm-aico" style="background:#00a8e0">🎬</div><div class="rm-aname">Prime</div></div>
-    <div class="rm-app" onclick="pushCmd({t:'open',url:'https://open.spotify.com'})"><div class="rm-aico" style="background:#1db954">♪</div><div class="rm-aname">Spotify</div></div>
-    <div class="rm-app" onclick="pushCmd({t:'open',url:'https://globoplay.globo.com'})"><div class="rm-aico" style="background:#cc0000">G</div><div class="rm-aname">Globoplay</div></div>
-    <div class="rm-app" onclick="pushCmd({t:'open',url:'https://crunchyroll.com'})"><div class="rm-aico" style="background:#f47521">CR</div><div class="rm-aname">Crunchyroll</div></div>
-    <div class="rm-app" onclick="pushCmd({t:'open',url:'https://disneyplus.com'})"><div class="rm-aico" style="background:#113ccf">D+</div><div class="rm-aname">Disney+</div></div>
-  </div>
+<div id="home">
+  <div class="sec-label">Aplicativos</div>
+  <div class="apps" id="apps-grid"></div>
 </div>
+
+<div id="launch">
+  <div class="launch-ico" id="l-ico"></div>
+  <div class="launch-name" id="l-name"></div>
+  <div class="launch-sub">Use o celular para abrir ↓</div>
+  <div class="launch-bar"><div class="launch-fill" id="l-fill"></div></div>
+</div>
+
+<div id="toast"></div>
+<div id="cursor"></div>
 
 <script>
-// ══ CONFIG ══
-window.ABLY_KEY = '61pamw.fZpAhQ:-3waGNH1nGjDu2fSEqRmVuLBHLFpGccyN8qM1q96sV4';
-const ABLY_KEY = window.ABLY_KEY;
-const CHANNEL  = 'tv-overblockk-remote';
-const ENG = {
-  google:'https://www.google.com/search?q=',
-  youtube:'https://www.youtube.com/results?search_query=',
-  bing:'https://www.bing.com/search?q=',
-  ddg:'https://duckduckgo.com/?q=',
-  twitch:'https://www.twitch.tv/search?term='
-};
-let eng='google', rmEng='google';
-const isRemote = new URLSearchParams(location.search).has('remote');
+const APPS=[
+  {name:'YouTube',   ico:'▶',  bg:'#cc0000',url:'youtube://'},
+  {name:'Twitch',    ico:'🎮', bg:'#9147ff',url:'twitch://'},
+  {name:'Netflix',   ico:'N',  bg:'#e50914',url:'nflx://'},
+  {name:'Prime',     ico:'🎬', bg:'#00a8e0',url:'primevideo://'},
+  {name:'Spotify',   ico:'♪',  bg:'#1db954',url:'spotify://'},
+  {name:'Globoplay', ico:'G',  bg:'#cc0000',url:'https://globoplay.globo.com'},
+  {name:'Disney+',   ico:'D+', bg:'#113ccf',url:'disneyplus://'},
+  {name:'Max',       ico:'MAX',bg:'#5822b4',url:'https://max.com'},
+  {name:'Crunchyroll',ico:'CR',bg:'#f47521',url:'https://crunchyroll.com'},
+  {name:'Globo AO VIVO',ico:'🔴',bg:'#0055aa',url:'https://globoplay.globo.com/ao-vivo/globo'},
+  {name:'Twitter',   ico:'𝕏',  bg:'#111',   url:'https://twitter.com'},
+  {name:'Reddit',    ico:'R',  bg:'#ff4500',url:'https://reddit.com'},
+  {name:'YouTube TV',ico:'📺', bg:'#333',   url:'https://tv.youtube.com'},
+  {name:'UOL',       ico:'UOL',bg:'#ff6600',url:'https://uol.com.br'},
+  {name:'Esportes',  ico:'⚽', bg:'#009922',url:'https://ge.globo.com'},
+  {name:'Maps',      ico:'📍', bg:'#34a853',url:'https://maps.google.com'},
+];
 
-// ══ CLOCK ══
+let focusIdx=0;
+
+// Relógio
 function tick(){
   const n=new Date();
-  const el=document.getElementById('clock');
-  if(el)el.textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
-  const ds=document.getElementById('date-str');
-  if(ds){const d=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];ds.textContent=d[n.getDay()]+' '+n.getDate()+'/'+m[n.getMonth()];}
+  document.getElementById('clock').textContent=
+    String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+  const d=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  document.getElementById('date-str').textContent=`${d[n.getDay()]}, ${n.getDate()} de ${m[n.getMonth()]}`;
 }
 tick();setInterval(tick,15000);
 
-// ══ IFRAME / NAVEGAÇÃO ══
-const iframe    = document.getElementById('content-iframe');
-const iframeWrap= document.getElementById('iframe-wrap');
-const homeContent=document.getElementById('home-content');
-const browserBar= document.getElementById('browser-bar');
-const urlBar    = document.getElementById('url-bar');
+// Build grid
+function buildGrid(){
+  document.getElementById('apps-grid').innerHTML=APPS.map((a,i)=>`
+    <div class="app${i===0?' focused':''}" id="a${i}">
+      <div class="app-ico" style="background:${a.bg}">${a.ico}</div>
+      <div class="app-name">${a.name}</div>
+    </div>`).join('');
+}
+buildGrid();
 
-function openSite(url){
-  // Sites que bloqueiam iframe via X-Frame-Options — abre em nova aba
-  const blocked = ['netflix','primevideo','amazon','disneyplus','hbomax','max.com','spotify','globoplay','crunchyroll'];
-  const isBlocked = blocked.some(b => url.includes(b));
-  if(isBlocked){
-    window.open(url,'_blank');
-    return;
-  }
-  iframe.src = url;
-  iframeWrap.style.display='block';
-  homeContent.style.display='none';
-  browserBar.style.display='flex';
-  urlBar.value = url;
-  hideCursor();
+// Foco / cursor
+function setFocus(idx){
+  document.getElementById(`a${focusIdx}`)?.classList.remove('focused');
+  focusIdx=(idx+APPS.length)%APPS.length;
+  document.getElementById(`a${focusIdx}`)?.classList.add('focused');
+  moveCursor();
 }
 
-function goHome(){
-  iframeWrap.style.display='none';
-  homeContent.style.display='block';
-  browserBar.style.display='none';
-  iframe.src='about:blank';
-  buildFocusList();
-  focusIdx=0;
-  highlightFocus();
-}
-
-function navigateTo(url){
-  if(!url) return;
-  if(!url.startsWith('http')) url='https://'+url;
-  openSite(url);
-}
-
-function iframeBack(){ try{iframe.contentWindow.history.back();}catch(e){} }
-function iframeFwd() { try{iframe.contentWindow.history.forward();}catch(e){} }
-
-iframe.addEventListener('load',()=>{
-  try{ urlBar.value = iframe.contentWindow.location.href; }catch(e){}
-});
-
-// ══ CURSOR / FOCO ══
-const SELS = '.app,.ql,.scard,.etab,.search-btn';
-let focusList=[], focusIdx=0;
-const cursorEl = document.getElementById('tv-cursor');
-
-function buildFocusList(){
-  focusList = Array.from(document.querySelectorAll(SELS)).filter(el=>{
-    const r=el.getBoundingClientRect();
-    return r.width>0&&r.height>0;
-  });
-}
-
-function highlightFocus(){
-  if(!focusList.length) return;
-  cursorEl.style.display='block';
-  const el=focusList[focusIdx];
+const cur=document.getElementById('cursor');
+function moveCursor(){
+  const el=document.getElementById(`a${focusIdx}`);
+  if(!el){cur.style.display='none';return;}
   const r=el.getBoundingClientRect();
-  cursorEl.style.left  =(r.left-5)+'px';
-  cursorEl.style.top   =(r.top-5)+'px';
-  cursorEl.style.width =(r.width+10)+'px';
-  cursorEl.style.height=(r.height+10)+'px';
+  cur.style.display='block';
+  cur.style.left=(r.left-6)+'px';cur.style.top=(r.top-6)+'px';
+  cur.style.width=(r.width+12)+'px';cur.style.height=(r.height+12)+'px';
   el.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
+moveCursor();
 
-function hideCursor(){ cursorEl.style.display='none'; }
-
-function moveFocus(delta){
-  buildFocusList();
-  if(!focusList.length) return;
-  focusIdx=(focusIdx+delta+focusList.length)%focusList.length;
-  highlightFocus();
-}
-
-function clickFocused(){
-  if(!focusList.length) return;
-  cursorEl.style.background='rgba(196,91,255,0.3)';
-  setTimeout(()=>cursorEl.style.background='rgba(196,91,255,0.06)',200);
-  focusList[focusIdx].click();
-}
-
-window.addEventListener('load',()=>{ if(!isRemote){buildFocusList();highlightFocus();} });
-
-// ══ SEARCH ══
-function setEng(e,el){eng=e;document.querySelectorAll('.etab').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
-function doSearch(){const q=document.getElementById('search-input').value.trim();if(q)openSite(ENG[eng]+encodeURIComponent(q));}
-document.getElementById('search-input')&&document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
-function rmSetEng(e,el){rmEng=e;document.querySelectorAll('.rm-etab').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
-function remoteSearch(){const q=document.getElementById('rm-search-input').value.trim();if(q)pushCmd({t:'search',q,eng:rmEng});}
-document.getElementById('rm-search-input')&&document.getElementById('rm-search-input').addEventListener('keydown',e=>{if(e.key==='Enter')remoteSearch();});
-
-// ══ EXEC CMD (TV) ══
-function execCmd(d){
-  if(d.t==='nav'){
-    if(iframeWrap.style.display==='block'){
-      // dentro de um site: scroll
-      if(d.d==='up')   iframe.contentWindow.scrollBy({top:-300,behavior:'smooth'});
-      if(d.d==='down') iframe.contentWindow.scrollBy({top:300,behavior:'smooth'});
-    } else {
-      if(d.d==='right') moveFocus(1);
-      if(d.d==='left')  moveFocus(-1);
-      if(d.d==='down')  moveFocus(4);
-      if(d.d==='up')    moveFocus(-4);
-    }
-  }
-  else if(d.t==='select') clickFocused();
-  else if(d.t==='home')   goHome();
-  else if(d.t==='back'){
-    if(iframeWrap.style.display==='block') iframeBack();
-    else moveFocus(-1);
-  }
-  else if(d.t==='fwd'){
-    if(iframeWrap.style.display==='block') iframeFwd();
-  }
-  else if(d.t==='open')   openSite(d.url);
-  else if(d.t==='search') openSite((ENG[d.eng]||ENG.google)+encodeURIComponent(d.q));
-  else if(d.t==='scroll'){
-    if(iframeWrap.style.display==='block'){
-      try{iframe.contentWindow.scrollBy({top:d.d==='down'?300:-300,behavior:'smooth'});}catch(e){}
-    } else {
-      homeContent.scrollBy({top:d.d==='down'?300:-300,behavior:'smooth'});
-    }
-  }
-  else if(d.t==='fullscreen'){
-    if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-    else document.exitFullscreen();
-  }
-}
-
-// ══ MODO ══
-if(isRemote){
-  document.getElementById('tv-shell').style.display='none';
-  document.getElementById('remote-mode').style.display='flex';
-} else {
-  // QR
-  new QRCode(document.getElementById('qr-box'),{
-    text:location.href.split('?')[0]+'?remote=1',
-    width:48,height:48,colorDark:'#000',colorLight:'#fff',
-    correctLevel:QRCode.CorrectLevel.L
+// Launch overlay
+let launchTimer;
+function launch(idx){
+  const a=APPS[idx];
+  document.getElementById('l-ico').textContent=a.ico;
+  document.getElementById('l-name').textContent=a.name;
+  const fill=document.getElementById('l-fill');
+  fill.style.transition='none';fill.style.width='0';
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      fill.style.transition='width 2.2s ease';fill.style.width='100%';
+    });
   });
+  document.getElementById('launch').classList.add('on');
+  clearTimeout(launchTimer);
+  launchTimer=setTimeout(()=>document.getElementById('launch').classList.remove('on'),3200);
 }
 
-// ══ ABLY ══
-const keyOk = ABLY_KEY.length>20 && !ABLY_KEY.includes('COLE');
-if(keyOk){
-  const s=document.createElement('script');
-  s.src='https://cdn.ably.com/lib/ably.min-2.js';
-  s.onload=()=>{
-    const ably=new Ably.Realtime({key:ABLY_KEY});
-    const ch=ably.channels.get(CHANNEL);
+// Toast
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('on'),2500);
+}
 
-    ably.connection.on('connected',()=>{
-      if(isRemote){
-        document.getElementById('rm-conn-status').textContent='✓ Conectado';
-        document.getElementById('rm-conn-status').className='rm-conn ok';
-      } else {
-        document.getElementById('qr-status').textContent='✓ Pronto';
-        document.getElementById('qr-status').className='qr-status ok';
-      }
-    });
-    ably.connection.on('failed',err=>{
-      const msg='❌ '+(err.message||'erro');
-      if(isRemote){document.getElementById('rm-conn-status').textContent=msg;document.getElementById('rm-conn-status').className='rm-conn off';}
-      else{document.getElementById('qr-status').textContent=msg;document.getElementById('qr-status').style.color='var(--red)';}
-    });
-
-    if(!isRemote){
-      ch.subscribe('cmd',msg=>{
-        execCmd(msg.data);
-        document.getElementById('qr-status').textContent='✓ Celular ativo';
-        document.getElementById('qr-status').className='qr-status ok';
-      });
-    } else {
-      window.pushCmd=cmd=>{
-        ch.publish('cmd',cmd);
-        if(event&&event.currentTarget){const el=event.currentTarget;el.classList.add('flashing');setTimeout(()=>el.classList.remove('flashing'),280);}
-      };
-    }
-  };
-  document.head.appendChild(s);
-} else {
-  if(isRemote){
-    document.getElementById('rm-conn-status').textContent='⚠️ Sem chave Ably';
-    document.getElementById('rm-conn-status').className='rm-conn off';
+// ── BroadcastChannel: recebe comandos do celular ──
+// Celular e TV devem estar na mesma origem (mesmo host)
+const bc=new BroadcastChannel('overblockk_tv');
+bc.onmessage=(e)=>{
+  const msg=e.data;
+  const cols=8;
+  switch(msg.t){
+    case 'up':   setFocus(focusIdx-cols); break;
+    case 'down': setFocus(focusIdx+cols); break;
+    case 'left': setFocus(focusIdx-1);   break;
+    case 'right':setFocus(focusIdx+1);   break;
+    case 'ok':
+      launch(focusIdx);
+      // Manda URL pro celular abrir
+      bc.postMessage({t:'open',url:APPS[focusIdx].url,name:APPS[focusIdx].name});
+      break;
+    case 'toast': toast(msg.text); break;
   }
-}
+};
 
-window.pushCmd = window.pushCmd || (()=>{});
+// Teclado (pra testar no PC)
+window.addEventListener('keydown',e=>{
+  const cols=8;
+  if(e.key==='ArrowRight') setFocus(focusIdx+1);
+  else if(e.key==='ArrowLeft') setFocus(focusIdx-1);
+  else if(e.key==='ArrowDown') setFocus(focusIdx+cols);
+  else if(e.key==='ArrowUp') setFocus(focusIdx-cols);
+  else if(e.key==='Enter'){launch(focusIdx);bc.postMessage({t:'open',url:APPS[focusIdx].url,name:APPS[focusIdx].name});}
+});
 </script>
 </body>
 </html>
