@@ -6,8 +6,36 @@
 <title>TV Home — overblockk</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, set, onValue, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// ─── COLOQUE SUAS CREDENCIAIS FIREBASE AQUI ───────────────────────────────
+const firebaseConfig = {
+  apiKey:            "COLE_AQUI",
+  authDomain:        "COLE_AQUI",
+  databaseURL:       "COLE_AQUI",   // ex: https://SEU-PROJETO.firebaseio.com
+  projectId:         "COLE_AQUI",
+  storageBucket:     "COLE_AQUI",
+  messagingSenderId: "COLE_AQUI",
+  appId:             "COLE_AQUI"
+};
+// ──────────────────────────────────────────────────────────────────────────
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+const params   = new URLSearchParams(location.search);
+const isRemote = params.has('remote');
+const SESSION  = 'tv_session_overblockk'; // chave fixa — mude se quiser multi-TV
+
+window._fbReady = { db, ref, set, onValue, serverTimestamp, isRemote, SESSION };
+window.dispatchEvent(new Event('fb-ready'));
+</script>
 <style>
-:root {
+:root{
   --bg:#080810;--s1:#111120;--s2:#1a1a30;--s3:#222238;
   --accent:#5b6ef5;--accent2:#c45bff;--green:#3ecf8e;
   --red:#f55b5b;--text:#f4f4ff;--sub:#8888bb;--border:rgba(91,110,245,0.2);
@@ -16,15 +44,13 @@
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;
   background-image:radial-gradient(ellipse 900px 500px at 10% -10%,rgba(91,110,245,0.1) 0%,transparent 70%),
   radial-gradient(ellipse 600px 400px at 90% 110%,rgba(196,91,255,0.08) 0%,transparent 60%);}
-
-/* ── TV ── */
 #tv-mode{display:block}
 #remote-mode{display:none}
 
+/* ── TOPBAR ── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:28px 56px;border-bottom:1px solid var(--border);}
 .logo{font-size:24px;font-weight:900;letter-spacing:-1px;background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .topbar-center{display:flex;align-items:center;gap:20px;}
-
 .qr-panel{display:flex;align-items:center;gap:14px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:10px 18px 10px 10px;}
 .qr-box{background:#fff;border-radius:8px;padding:6px;width:72px;height:72px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 #qr-canvas{width:60px!important;height:60px!important;}
@@ -32,99 +58,94 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .qr-status{font-size:13px;font-weight:600;margin-top:4px;}
 .qr-status.connected{color:var(--green);}
 .qr-status.waiting{color:var(--accent);}
-
 .live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,91,91,0.15);border:1px solid rgba(245,91,91,0.4);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--red);letter-spacing:1px;}
 .live-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.4s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
 
+/* ── SEARCH ── */
 .search-section{padding:36px 56px 0;}
 .search-row{display:flex;gap:12px;align-items:stretch;max-width:860px;}
-.search-box{flex:1;display:flex;align-items:center;gap:12px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:0 20px;transition:border-color 0.2s;}
+.search-box{flex:1;display:flex;align-items:center;gap:12px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:0 20px;transition:border-color .2s;}
 .search-box:focus-within{border-color:var(--accent);}
 #search-input{flex:1;background:none;border:none;outline:none;font-family:'Outfit',sans-serif;font-size:20px;color:var(--text);padding:16px 0;}
 #search-input::placeholder{color:var(--sub);}
-.search-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:14px;color:#fff;font-family:'Outfit',sans-serif;font-size:18px;font-weight:600;padding:0 32px;cursor:pointer;transition:opacity 0.18s;}
-.search-btn:hover{opacity:0.85;}
+.search-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:14px;color:#fff;font-family:'Outfit',sans-serif;font-size:18px;font-weight:600;padding:0 32px;cursor:pointer;}
 .engines{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
-.etab{background:var(--s1);border:1.5px solid var(--border);border-radius:8px;padding:8px 18px;font-size:15px;font-family:'Outfit',sans-serif;color:var(--sub);cursor:pointer;transition:all 0.15s;}
-.etab:hover{color:var(--text);border-color:var(--accent);}
-.etab.on{color:var(--text);border-color:var(--accent);background:rgba(91,110,245,0.12);}
+.etab{background:var(--s1);border:1.5px solid var(--border);border-radius:8px;padding:8px 18px;font-size:15px;font-family:'Outfit',sans-serif;color:var(--sub);cursor:pointer;transition:all .15s;}
+.etab:hover,.etab.on{color:var(--text);border-color:var(--accent);}
+.etab.on{background:rgba(91,110,245,0.12);}
 
+/* ── GRID ── */
 .sec-label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--sub);padding:0 56px;margin-top:44px;margin-bottom:18px;}
 .apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;padding:0 56px;}
-.app{background:var(--s1);border:1.5px solid var(--border);border-radius:18px;padding:24px 14px 18px;text-align:center;cursor:pointer;text-decoration:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:12px;transition:border-color 0.18s,transform 0.18s,background 0.18s;}
+.app{background:var(--s1);border:1.5px solid var(--border);border-radius:18px;padding:24px 14px 18px;text-align:center;cursor:pointer;text-decoration:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:12px;transition:border-color .18s,transform .18s,background .18s;}
 .app:hover{border-color:var(--accent);background:var(--s2);transform:translateY(-4px);}
 .aico{width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;}
 .aname{font-size:14px;font-weight:600;line-height:1.2;}
-
 .qlinks{display:flex;gap:10px;flex-wrap:wrap;padding:0 56px;}
-.ql{background:var(--s1);border:1.5px solid var(--border);border-radius:50px;padding:10px 20px;font-size:15px;font-family:'Outfit',sans-serif;color:var(--text);text-decoration:none;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+.ql{background:var(--s1);border:1.5px solid var(--border);border-radius:50px;padding:10px 20px;font-size:15px;font-family:'Outfit',sans-serif;color:var(--text);text-decoration:none;cursor:pointer;transition:border-color .15s,background .15s;}
 .ql:hover{border-color:var(--accent);background:var(--s2);}
-
 .srow{display:flex;gap:16px;padding:0 56px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--s3) transparent;padding-bottom:8px;}
-.scard{flex:0 0 210px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;text-decoration:none;color:var(--text);cursor:pointer;transition:border-color 0.18s,transform 0.18s;}
+.scard{flex:0 0 210px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;text-decoration:none;color:var(--text);cursor:pointer;transition:border-color .18s,transform .18s;}
 .scard:hover{border-color:var(--accent);transform:translateY(-4px);}
 .sthumb{height:110px;display:flex;align-items:center;justify-content:center;font-size:48px;}
 .sinfo{padding:12px 14px 14px;}
 .stitle{font-size:15px;font-weight:600;margin-bottom:3px;}
 .ssub{font-size:12px;color:var(--sub);}
-
 .footer{margin-top:56px;padding:24px 56px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
 .ftip{font-size:13px;color:var(--sub);}
 kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2px 6px;font-size:11px;font-family:monospace;color:var(--text);}
 
-/* highlight cursor */
-.app.hl,.ql.hl,.scard.hl,.etab.hl{border-color:var(--accent2)!important;background:rgba(196,91,255,0.15)!important;}
+/* ── SETUP BANNER ── */
+#setup-banner{display:none;background:rgba(245,91,91,0.12);border:1.5px solid rgba(245,91,91,0.4);border-radius:12px;margin:20px 56px;padding:16px 20px;font-size:14px;line-height:1.7;color:var(--text);}
+#setup-banner a{color:var(--accent2);}
+#setup-banner code{background:var(--s2);padding:2px 6px;border-radius:4px;font-size:13px;}
 
 /* ── REMOTE ── */
-#remote-mode{min-height:100vh;background:#080810;display:flex;flex-direction:column;align-items:center;padding:0 0 32px;}
+#remote-mode{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 32px;}
 .rm-header{width:100%;background:var(--s1);border-bottom:1px solid var(--border);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;}
 .rm-logo{font-size:18px;font-weight:900;color:var(--accent);}
 .rm-conn{font-size:13px;font-weight:600;}
 .rm-conn.ok{color:var(--green);}
 .rm-conn.off{color:var(--red);}
-
+.rm-conn.wait{color:var(--accent);}
 .rm-search{width:100%;padding:16px 16px 0;display:flex;gap:10px;}
 .rm-search input{flex:1;background:var(--s1);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text);font-family:'Outfit',sans-serif;font-size:16px;outline:none;}
 .rm-search input:focus{border-color:var(--accent);}
 .rm-search button{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;color:#fff;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;padding:0 18px;cursor:pointer;}
-
 .rm-engines{width:100%;padding:10px 16px 0;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
 .rm-engines::-webkit-scrollbar{display:none;}
-.rm-etab{background:var(--s1);border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;font-size:13px;font-family:'Outfit',sans-serif;color:var(--sub);cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.rm-etab{background:var(--s1);border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;font-size:13px;font-family:'Outfit',sans-serif;color:var(--sub);cursor:pointer;white-space:nowrap;transition:all .15s;}
 .rm-etab.on{color:var(--text);border-color:var(--accent);background:rgba(91,110,245,0.15);}
-
 .rm-dpad{margin-top:20px;display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:8px;}
-.dpad-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.12s,transform 0.1s;-webkit-tap-highlight-color:transparent;user-select:none;}
-.dpad-btn:active{background:var(--accent);transform:scale(0.93);}
+.dpad-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,transform .1s;-webkit-tap-highlight-color:transparent;user-select:none;}
+.dpad-btn:active{background:var(--accent);transform:scale(.93);}
 .dpad-center{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;font-size:18px;font-weight:700;}
 .dpad-empty{background:transparent;border:none;pointer-events:none;}
-
 .rm-actions{width:100%;padding:16px 16px 0;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.act-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;padding:16px 10px;cursor:pointer;text-align:center;transition:background 0.12s,border-color 0.12s;-webkit-tap-highlight-color:transparent;}
+.act-btn{background:var(--s2);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;padding:16px 10px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;}
 .act-btn:active{background:rgba(91,110,245,0.25);border-color:var(--accent);}
-
 .rm-apps-title{width:100%;padding:18px 16px 8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--sub);}
 .rm-apps{width:100%;padding:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.rm-app{background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:14px 8px 12px;text-align:center;cursor:pointer;text-decoration:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent;transition:border-color 0.15s;}
+.rm-app{background:var(--s1);border:1.5px solid var(--border);border-radius:14px;padding:14px 8px 12px;text-align:center;cursor:pointer;text-decoration:none;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent;}
 .rm-app:active{border-color:var(--accent);background:var(--s2);}
 .rm-aico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;}
 .rm-aname{font-size:11px;font-weight:600;line-height:1.2;}
-
-.rm-waiting{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px;}
-.spin{width:48px;height:48px;border:3px solid var(--s2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.9s linear infinite;}
+.spin{width:48px;height:48px;border:3px solid var(--s2);border-top-color:var(--accent);border-radius:50%;animation:spin .9s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.rm-waiting p{font-size:16px;color:var(--sub);text-align:center;}
-
-/* instrução manual */
-.manual-url{width:100%;padding:10px 16px 0;text-align:center;font-size:12px;color:var(--sub);word-break:break-all;}
-.manual-url a{color:var(--accent);text-decoration:underline;}
 </style>
 </head>
 <body>
 
-<!-- ══ TV MODE ══ -->
+<!-- ══ TV ══ -->
 <div id="tv-mode">
+  <div id="setup-banner">
+    ⚠️ <strong>Firebase não configurado.</strong> Para o controle remoto funcionar entre dispositivos diferentes,
+    você precisa criar um projeto no <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a>,
+    ativar o <strong>Realtime Database</strong> (modo teste), e colar as credenciais no topo do arquivo HTML onde está escrito
+    <code>COLE_AQUI</code>. É gratuito e leva ~3 minutos.
+  </div>
+
   <div class="topbar">
     <div>
       <div class="logo">⬡ TV HOME</div>
@@ -142,7 +163,7 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
       <div class="live-badge"><div class="live-dot"></div>AO VIVO</div>
     </div>
     <div>
-      <div id="clock" style="font-size:38px;font-weight:700;letter-spacing:-2px;line-height:1;">00:00</div>
+      <div id="clock">00:00</div>
       <div id="date-str" style="font-size:13px;color:var(--sub);text-align:right;margin-top:3px;"></div>
     </div>
   </div>
@@ -150,7 +171,7 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
   <div class="search-section">
     <div class="search-row">
       <div class="search-box">
-        <span style="font-size:20px;opacity:0.5;">🔍</span>
+        <span style="font-size:20px;opacity:.5">🔍</span>
         <input type="text" id="search-input" placeholder="Buscar na internet..." autocomplete="off"/>
       </div>
       <button class="search-btn" onclick="doSearch()">Buscar →</button>
@@ -167,22 +188,22 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
 
   <div class="sec-label">Aplicativos</div>
   <div class="apps">
-    <a class="app" href="https://youtube.com" target="_blank"><div class="aico" style="background:#cc0000;">▶</div><div class="aname">YouTube</div></a>
-    <a class="app" href="https://twitch.tv/overblockk" target="_blank"><div class="aico" style="background:#9147ff;">🎮</div><div class="aname">Twitch</div></a>
-    <a class="app" href="https://netflix.com" target="_blank"><div class="aico" style="background:#e50914;">N</div><div class="aname">Netflix</div></a>
-    <a class="app" href="https://primevideo.com" target="_blank"><div class="aico" style="background:#00a8e0;">🎬</div><div class="aname">Prime Video</div></a>
-    <a class="app" href="https://open.spotify.com" target="_blank"><div class="aico" style="background:#1db954;">♪</div><div class="aname">Spotify</div></a>
-    <a class="app" href="https://globoplay.globo.com" target="_blank"><div class="aico" style="background:#cc0000;">G</div><div class="aname">Globoplay</div></a>
-    <a class="app" href="https://crunchyroll.com" target="_blank"><div class="aico" style="background:#f47521;">CR</div><div class="aname">Crunchyroll</div></a>
-    <a class="app" href="https://disneyplus.com" target="_blank"><div class="aico" style="background:#113ccf;">D+</div><div class="aname">Disney+</div></a>
-    <a class="app" href="https://hbomax.com" target="_blank"><div class="aico" style="background:#5822b4;">MAX</div><div class="aname">Max</div></a>
-    <a class="app" href="https://twitter.com" target="_blank"><div class="aico" style="background:#111;">𝕏</div><div class="aname">X / Twitter</div></a>
-    <a class="app" href="https://reddit.com" target="_blank"><div class="aico" style="background:#ff4500;">R</div><div class="aname">Reddit</div></a>
-    <a class="app" href="https://globoplay.globo.com/ao-vivo/globo" target="_blank"><div class="aico" style="background:#0055aa;">G1</div><div class="aname">Globo AO VIVO</div></a>
-    <a class="app" href="https://maps.google.com" target="_blank"><div class="aico" style="background:#34a853;">📍</div><div class="aname">Maps</div></a>
-    <a class="app" href="https://uol.com.br" target="_blank"><div class="aico" style="background:#ff6600;">UOL</div><div class="aname">UOL</div></a>
-    <a class="app" href="https://twitch.tv/directory" target="_blank"><div class="aico" style="background:#6441a5;">📡</div><div class="aname">Twitch Dir.</div></a>
-    <a class="app" href="https://globo.com/esporte" target="_blank"><div class="aico" style="background:#009922;">⚽</div><div class="aname">Esportes</div></a>
+    <a class="app" href="https://youtube.com" target="_blank"><div class="aico" style="background:#cc0000">▶</div><div class="aname">YouTube</div></a>
+    <a class="app" href="https://twitch.tv/overblockk" target="_blank"><div class="aico" style="background:#9147ff">🎮</div><div class="aname">Twitch</div></a>
+    <a class="app" href="https://netflix.com" target="_blank"><div class="aico" style="background:#e50914">N</div><div class="aname">Netflix</div></a>
+    <a class="app" href="https://primevideo.com" target="_blank"><div class="aico" style="background:#00a8e0">🎬</div><div class="aname">Prime Video</div></a>
+    <a class="app" href="https://open.spotify.com" target="_blank"><div class="aico" style="background:#1db954">♪</div><div class="aname">Spotify</div></a>
+    <a class="app" href="https://globoplay.globo.com" target="_blank"><div class="aico" style="background:#cc0000">G</div><div class="aname">Globoplay</div></a>
+    <a class="app" href="https://crunchyroll.com" target="_blank"><div class="aico" style="background:#f47521">CR</div><div class="aname">Crunchyroll</div></a>
+    <a class="app" href="https://disneyplus.com" target="_blank"><div class="aico" style="background:#113ccf">D+</div><div class="aname">Disney+</div></a>
+    <a class="app" href="https://hbomax.com" target="_blank"><div class="aico" style="background:#5822b4">MAX</div><div class="aname">Max</div></a>
+    <a class="app" href="https://twitter.com" target="_blank"><div class="aico" style="background:#111">𝕏</div><div class="aname">X / Twitter</div></a>
+    <a class="app" href="https://reddit.com" target="_blank"><div class="aico" style="background:#ff4500">R</div><div class="aname">Reddit</div></a>
+    <a class="app" href="https://globoplay.globo.com/ao-vivo/globo" target="_blank"><div class="aico" style="background:#0055aa">G1</div><div class="aname">Globo Ao Vivo</div></a>
+    <a class="app" href="https://maps.google.com" target="_blank"><div class="aico" style="background:#34a853">📍</div><div class="aname">Maps</div></a>
+    <a class="app" href="https://uol.com.br" target="_blank"><div class="aico" style="background:#ff6600">UOL</div><div class="aname">UOL</div></a>
+    <a class="app" href="https://twitch.tv/directory" target="_blank"><div class="aico" style="background:#6441a5">📡</div><div class="aname">Twitch Dir.</div></a>
+    <a class="app" href="https://globo.com/esporte" target="_blank"><div class="aico" style="background:#009922">⚽</div><div class="aname">Esportes</div></a>
   </div>
 
   <div class="sec-label">Acesso rápido</div>
@@ -200,238 +221,156 @@ kbd{background:var(--s2);border:1px solid var(--s3);border-radius:4px;padding:2p
 
   <div class="sec-label">Streaming em destaque</div>
   <div class="srow">
-    <a class="scard" href="https://twitch.tv/overblockk" target="_blank"><div class="sthumb" style="background:#1a0a2e;">🎮</div><div class="sinfo"><div class="stitle">overblockk</div><div class="ssub">Seu canal • Twitch</div></div></a>
-    <a class="scard" href="https://youtube.com/results?search_query=live+agora+brasil" target="_blank"><div class="sthumb" style="background:#1a0000;">📺</div><div class="sinfo"><div class="stitle">Lives BR Agora</div><div class="ssub">YouTube ao vivo</div></div></a>
-    <a class="scard" href="https://twitch.tv/directory" target="_blank"><div class="sthumb" style="background:#0f0a1e;">📡</div><div class="sinfo"><div class="stitle">Twitch Directory</div><div class="ssub">Todos os canais</div></div></a>
-    <a class="scard" href="https://globoplay.globo.com/ao-vivo/globo" target="_blank"><div class="sthumb" style="background:#1a0000;">🔴</div><div class="sinfo"><div class="stitle">Globo Ao Vivo</div><div class="ssub">TV aberta</div></div></a>
-    <a class="scard" href="https://youtube.com/results?search_query=lofi+hip+hop+radio" target="_blank"><div class="sthumb" style="background:#0a0a1a;">🎧</div><div class="sinfo"><div class="stitle">Lofi Radio</div><div class="ssub">Música contínua</div></div></a>
+    <a class="scard" href="https://twitch.tv/overblockk" target="_blank"><div class="sthumb" style="background:#1a0a2e">🎮</div><div class="sinfo"><div class="stitle">overblockk</div><div class="ssub">Seu canal • Twitch</div></div></a>
+    <a class="scard" href="https://youtube.com/results?search_query=live+agora+brasil" target="_blank"><div class="sthumb" style="background:#1a0000">📺</div><div class="sinfo"><div class="stitle">Lives BR Agora</div><div class="ssub">YouTube ao vivo</div></div></a>
+    <a class="scard" href="https://twitch.tv/directory" target="_blank"><div class="sthumb" style="background:#0f0a1e">📡</div><div class="sinfo"><div class="stitle">Twitch Directory</div><div class="ssub">Todos os canais</div></div></a>
+    <a class="scard" href="https://globoplay.globo.com/ao-vivo/globo" target="_blank"><div class="sthumb" style="background:#1a0000">🔴</div><div class="sinfo"><div class="stitle">Globo Ao Vivo</div><div class="ssub">TV aberta</div></div></a>
+    <a class="scard" href="https://youtube.com/results?search_query=lofi+hip+hop+radio" target="_blank"><div class="sthumb" style="background:#0a0a1a">🎧</div><div class="sinfo"><div class="stitle">Lofi Radio</div><div class="ssub">Música contínua</div></div></a>
   </div>
 
   <div class="footer">
-    <span class="ftip">💡 <kbd>F11</kbd> tela cheia &nbsp;|&nbsp; Escaneie o QR code com o celular pra abrir o controle remoto</span>
-    <span class="ftip" style="color:var(--accent);">overblockk ⬡</span>
+    <span class="ftip">💡 <kbd>F11</kbd> tela cheia &nbsp;|&nbsp; Escaneia o QR code com o celular pra controlar</span>
+    <span class="ftip" style="color:var(--accent)">overblockk ⬡</span>
   </div>
 </div>
 
-<!-- ══ REMOTE MODE ══ -->
+<!-- ══ REMOTE ══ -->
 <div id="remote-mode">
   <div class="rm-header">
     <div class="rm-logo">⬡ CONTROLE REMOTO</div>
-    <div class="rm-conn ok" id="rm-conn-status">● Pronto</div>
+    <div class="rm-conn wait" id="rm-conn-status">⏳ Conectando...</div>
   </div>
 
-  <div class="rm-search">
-    <input type="text" id="rm-search-input" placeholder="Buscar na TV..."/>
-    <button onclick="remoteSearch()">→</button>
+  <div id="rm-body" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+    <div class="rm-search">
+      <input type="text" id="rm-search-input" placeholder="Buscar na TV..."/>
+      <button onclick="remoteSearch()">→</button>
+    </div>
+    <div class="rm-engines">
+      <div class="rm-etab on" onclick="rmSetEng('google',this)">Google</div>
+      <div class="rm-etab" onclick="rmSetEng('youtube',this)">YouTube</div>
+      <div class="rm-etab" onclick="rmSetEng('bing',this)">Bing</div>
+      <div class="rm-etab" onclick="rmSetEng('ddg',this)">DDG</div>
+      <div class="rm-etab" onclick="rmSetEng('twitch',this)">Twitch</div>
+    </div>
+    <div class="rm-dpad">
+      <div class="dpad-empty"></div>
+      <div class="dpad-btn" onclick="pushCmd({t:'scroll',d:'up'})">▲</div>
+      <div class="dpad-empty"></div>
+      <div class="dpad-btn" onclick="pushCmd({t:'nav',d:'back'})">◀</div>
+      <div class="dpad-btn dpad-center" onclick="pushCmd({t:'reload'})">↻</div>
+      <div class="dpad-btn" onclick="pushCmd({t:'nav',d:'fwd'})">▶</div>
+      <div class="dpad-empty"></div>
+      <div class="dpad-btn" onclick="pushCmd({t:'scroll',d:'down'})">▼</div>
+      <div class="dpad-empty"></div>
+    </div>
+    <div class="rm-actions">
+      <div class="act-btn" onclick="pushCmd({t:'fullscreen'})">⛶ Tela cheia</div>
+      <div class="act-btn" onclick="pushCmd({t:'mute'})">🔇 Mudo</div>
+      <div class="act-btn" onclick="pushCmd({t:'vol',d:'up'})">🔊 Vol +</div>
+      <div class="act-btn" onclick="pushCmd({t:'vol',d:'down'})">🔉 Vol -</div>
+    </div>
+    <div class="rm-apps-title">Abrir na TV</div>
+    <div class="rm-apps">
+      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://youtube.com'})"><div class="rm-aico" style="background:#cc0000">▶</div><div class="rm-aname">YouTube</div></a>
+      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://twitch.tv/overblockk'})"><div class="rm-aico" style="background:#9147ff">🎮</div><div class="rm-aname">Twitch</div></a>
+      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://netflix.com'})"><div class="rm-aico" style="background:#e50914">N</div><div class="rm-aname">Netflix</div></a>
+      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://primevideo.com'})"><div class="rm-aico" style="background:#00a8e0">🎬</div><div class="rm-aname">Prime</div></a>
+      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://open.spotify.com'})"><div class="rm-aico" style="background:#1db954">♪</div><div class="rm-aname">Spotify</div></a>
+      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://globoplay.globo.com'})"><div class="rm-aico" style="background:#cc0000">G</div><div class="rm-aname">Globoplay</div></a>
+      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://crunchyroll.com'})"><div class="rm-aico" style="background:#f47521">CR</div><div class="rm-aname">Crunchyroll</div></a>
+      <a class="rm-app" onclick="pushCmd({t:'open',url:'https://disneyplus.com'})"><div class="rm-aico" style="background:#113ccf">D+</div><div class="rm-aname">Disney+</div></a>
+    </div>
   </div>
-  <div class="rm-engines">
-    <div class="rm-etab on" onclick="rmSetEng('google',this)">Google</div>
-    <div class="rm-etab" onclick="rmSetEng('youtube',this)">YouTube</div>
-    <div class="rm-etab" onclick="rmSetEng('bing',this)">Bing</div>
-    <div class="rm-etab" onclick="rmSetEng('ddg',this)">DDG</div>
-    <div class="rm-etab" onclick="rmSetEng('twitch',this)">Twitch</div>
-  </div>
-
-  <div class="rm-dpad">
-    <div class="dpad-empty"></div>
-    <div class="dpad-btn" onclick="pushCmd({t:'scroll',d:'up'})">▲</div>
-    <div class="dpad-empty"></div>
-    <div class="dpad-btn" onclick="pushCmd({t:'nav',d:'back'})">◀</div>
-    <div class="dpad-btn dpad-center" onclick="pushCmd({t:'reload'})">↻</div>
-    <div class="dpad-btn" onclick="pushCmd({t:'nav',d:'fwd'})">▶</div>
-    <div class="dpad-empty"></div>
-    <div class="dpad-btn" onclick="pushCmd({t:'scroll',d:'down'})">▼</div>
-    <div class="dpad-empty"></div>
-  </div>
-
-  <div class="rm-actions">
-    <div class="act-btn" onclick="pushCmd({t:'fullscreen'})">⛶ Tela cheia</div>
-    <div class="act-btn" onclick="pushCmd({t:'mute'})">🔇 Mudo</div>
-    <div class="act-btn" onclick="pushCmd({t:'vol',d:'up'})">🔊 Vol +</div>
-    <div class="act-btn" onclick="pushCmd({t:'vol',d:'down'})">🔉 Vol -</div>
-  </div>
-
-  <div class="rm-apps-title">Abrir direto na TV</div>
-  <div class="rm-apps">
-    <a class="rm-app" onclick="pushCmd({t:'open',url:'https://youtube.com'})"><div class="rm-aico" style="background:#cc0000;">▶</div><div class="rm-aname">YouTube</div></a>
-    <a class="rm-app" onclick="pushCmd({t:'open',url:'https://twitch.tv/overblockk'})"><div class="rm-aico" style="background:#9147ff;">🎮</div><div class="rm-aname">Twitch</div></a>
-    <a class="rm-app" onclick="pushCmd({t:'open',url:'https://netflix.com'})"><div class="rm-aico" style="background:#e50914;">N</div><div class="rm-aname">Netflix</div></a>
-    <a class="rm-app" onclick="pushCmd({t:'open',url:'https://primevideo.com'})"><div class="rm-aico" style="background:#00a8e0;">🎬</div><div class="rm-aname">Prime</div></a>
-    <a class="rm-app" onclick="pushCmd({t:'open',url:'https://open.spotify.com'})"><div class="rm-aico" style="background:#1db954;">♪</div><div class="rm-aname">Spotify</div></a>
-    <a class="rm-app" onclick="pushCmd({t:'open',url:'https://globoplay.globo.com'})"><div class="rm-aico" style="background:#cc0000;">G</div><div class="rm-aname">Globoplay</div></a>
-    <a class="rm-app" onclick="pushCmd({t:'open',url:'https://crunchyroll.com'})"><div class="rm-aico" style="background:#f47521;">CR</div><div class="rm-aname">Crunchyroll</div></a>
-    <a class="rm-app" onclick="pushCmd({t:'open',url:'https://disneyplus.com'})"><div class="rm-aico" style="background:#113ccf;">D+</div><div class="rm-aname">Disney+</div></a>
-  </div>
-
-  <div class="manual-url" id="tv-link-hint"></div>
 </div>
 
 <script>
-// ══════════════════════════════════════
-// SHARED: channel via localStorage (mesma origem) ou BroadcastChannel
-// ══════════════════════════════════════
-const params = new URLSearchParams(location.search);
-const isRemote = params.has('remote');
+const ENG={google:'https://www.google.com/search?q=',youtube:'https://www.youtube.com/results?search_query=',bing:'https://www.bing.com/search?q=',ddg:'https://duckduckgo.com/?q=',twitch:'https://www.twitch.tv/search?term=',reddit:'https://www.reddit.com/search/?q='};
+let eng='google', rmEng='google';
 
-// BroadcastChannel funciona se TV e celular abrirem na mesma origem
-// (mesmo navegador, mesmo domínio — ex: claude.ai preview)
-// Para redes diferentes, o usuário precisa usar o mesmo dispositivo ou rede local.
-// Usamos BroadcastChannel + localStorage como fallback.
-
-const CH_NAME = 'tv_remote_ch';
-let bc = null;
-try { bc = new BroadcastChannel(CH_NAME); } catch(e) {}
-
-function broadcastCmd(cmd) {
-  const msg = JSON.stringify(cmd);
-  if (bc) bc.postMessage(msg);
-  try { localStorage.setItem('tv_cmd', msg + '|' + Date.now()); } catch(e) {}
+// clock
+function tick(){
+  const now=new Date();
+  const el=document.getElementById('clock');
+  if(el)el.textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const ds=document.getElementById('date-str');
+  if(ds){const d=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];ds.textContent=d[now.getDay()]+', '+now.getDate()+' de '+m[now.getMonth()];}
 }
+tick();setInterval(tick,10000);
 
-// ══════════════════════════════════════
-// CLOCK
-// ══════════════════════════════════════
-function tick() {
-  const now = new Date();
-  const el = document.getElementById('clock');
-  if (el) el.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-  const ds = document.getElementById('date-str');
-  if (ds) {
-    const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-    const meses=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-    ds.textContent = dias[now.getDay()] + ', ' + now.getDate() + ' de ' + meses[now.getMonth()];
-  }
-}
-tick(); setInterval(tick, 10000);
+function setEng(e,el){eng=e;document.querySelectorAll('.etab').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
+function doSearch(){const q=document.getElementById('search-input').value.trim();if(q)window.open(ENG[eng]+encodeURIComponent(q),'_blank');}
+document.getElementById('search-input')&&document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+function rmSetEng(e,el){rmEng=e;document.querySelectorAll('.rm-etab').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
+function remoteSearch(){const q=document.getElementById('rm-search-input').value.trim();if(q)pushCmd({t:'search',q,eng:rmEng});}
+document.getElementById('rm-search-input')&&document.getElementById('rm-search-input').addEventListener('keydown',e=>{if(e.key==='Enter')remoteSearch();});
 
-// ══════════════════════════════════════
-// TV MODE
-// ══════════════════════════════════════
-const ENG = {
-  google:'https://www.google.com/search?q=',
-  youtube:'https://www.youtube.com/results?search_query=',
-  bing:'https://www.bing.com/search?q=',
-  ddg:'https://duckduckgo.com/?q=',
-  twitch:'https://www.twitch.tv/search?term=',
-  reddit:'https://www.reddit.com/search/?q='
-};
-let eng = 'google';
+// Firebase init
+window.addEventListener('fb-ready', () => {
+  const {db, ref, set, onValue, serverTimestamp, isRemote, SESSION} = window._fbReady;
+  const cmdRef = ref(db, SESSION + '/cmd');
 
-function setEng(e, el) {
-  eng = e;
-  document.querySelectorAll('.etab').forEach(t => t.classList.remove('on'));
-  el.classList.add('on');
-}
-function doSearch() {
-  const q = document.getElementById('search-input').value.trim();
-  if (q) window.open(ENG[eng] + encodeURIComponent(q), '_blank');
-}
-document.getElementById('search-input') &&
-  document.getElementById('search-input').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+  if (!isRemote) {
+    // ── TV MODE ──
+    const params = new URLSearchParams(location.search);
+    const configured = !document.querySelector('script[type="module"]').textContent.includes('"COLE_AQUI"');
 
-function initTV() {
-  // Gera URL do controle
-  const remoteUrl = location.href.split('?')[0] + '?remote=1';
+    // Verifica se Firebase foi configurado
+    const scriptContent = document.querySelector('script[type="module"]').textContent;
+    if (scriptContent.includes('COLE_AQUI')) {
+      document.getElementById('setup-banner').style.display = 'block';
+    }
 
-  // QR Code
-  new QRCode(document.getElementById('qr-canvas'), {
-    text: remoteUrl,
-    width: 60, height: 60,
-    colorDark: '#000', colorLight: '#fff',
-    correctLevel: QRCode.CorrectLevel.L
-  });
-
-  // Escuta comandos
-  let lastCmd = '';
-
-  function handleCmd(raw) {
-    if (!raw || raw === lastCmd) return;
-    lastCmd = raw;
-    const data = JSON.parse(raw.split('|')[0]);
-    execCmd(data);
-    document.getElementById('qr-status').textContent = '✓ Conectado!';
-    document.getElementById('qr-status').className = 'qr-status connected';
-  }
-
-  if (bc) bc.onmessage = e => handleCmd(e.data);
-
-  // Polling localStorage (fallback / mesmo device)
-  setInterval(() => {
-    try {
-      const v = localStorage.getItem('tv_cmd');
-      if (v) handleCmd(v);
-    } catch(e) {}
-  }, 300);
-}
-
-function execCmd(d) {
-  if (d.t === 'search') {
-    const url = (ENG[d.eng] || ENG.google) + encodeURIComponent(d.q);
-    window.open(url, '_blank');
-  } else if (d.t === 'open') {
-    window.open(d.url, '_blank');
-  } else if (d.t === 'scroll') {
-    window.scrollBy({ top: d.d === 'down' ? 320 : -320, behavior: 'smooth' });
-  } else if (d.t === 'fullscreen') {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-    else document.exitFullscreen();
-  } else if (d.t === 'reload') {
-    location.reload();
-  } else if (d.t === 'nav') {
-    if (d.d === 'back') history.back();
-    else history.forward();
-  } else if (d.t === 'mute') {
-    document.querySelectorAll('video,audio').forEach(m => m.muted = !m.muted);
-  } else if (d.t === 'vol') {
-    document.querySelectorAll('video,audio').forEach(m => {
-      m.volume = Math.max(0, Math.min(1, m.volume + (d.d === 'up' ? 0.1 : -0.1)));
+    // QR Code
+    const remoteUrl = location.href.split('?')[0] + '?remote=1';
+    new QRCode(document.getElementById('qr-canvas'), {
+      text: remoteUrl, width: 60, height: 60,
+      colorDark: '#000', colorLight: '#fff',
+      correctLevel: QRCode.CorrectLevel.L
     });
+
+    let lastTs = null;
+    onValue(cmdRef, snap => {
+      const data = snap.val();
+      if (!data || data.ts === lastTs) return;
+      lastTs = data.ts;
+      execCmd(data);
+      document.getElementById('qr-status').textContent = '✓ Conectado!';
+      document.getElementById('qr-status').className = 'qr-status connected';
+      setTimeout(()=>{
+        document.getElementById('qr-status').textContent = 'Aguardando celular...';
+        document.getElementById('qr-status').className = 'qr-status waiting';
+      }, 3000);
+    });
+
+  } else {
+    // ── REMOTE MODE ──
+    document.getElementById('rm-conn-status').textContent = '✓ Pronto';
+    document.getElementById('rm-conn-status').className = 'rm-conn ok';
+
+    window.pushCmd = function(cmd) {
+      cmd.ts = Date.now();
+      set(cmdRef, cmd);
+    };
   }
-}
 
-// ══════════════════════════════════════
-// REMOTE MODE
-// ══════════════════════════════════════
-let rmEng = 'google';
+  function execCmd(d) {
+    if (d.t==='search') window.open((ENG[d.eng]||ENG.google)+encodeURIComponent(d.q),'_blank');
+    else if(d.t==='open') window.open(d.url,'_blank');
+    else if(d.t==='scroll') window.scrollBy({top:d.d==='down'?320:-320,behavior:'smooth'});
+    else if(d.t==='fullscreen'){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}
+    else if(d.t==='reload') location.reload();
+    else if(d.t==='nav'){if(d.d==='back')history.back();else history.forward();}
+    else if(d.t==='mute') document.querySelectorAll('video,audio').forEach(m=>m.muted=!m.muted);
+    else if(d.t==='vol') document.querySelectorAll('video,audio').forEach(m=>m.volume=Math.max(0,Math.min(1,m.volume+(d.d==='up'?.1:-.1))));
+  }
+});
 
-function pushCmd(cmd) {
-  broadcastCmd(cmd);
-  // feedback visual rápido
-  const btn = event && event.currentTarget;
-  if (btn) { btn.style.opacity='0.5'; setTimeout(()=>btn.style.opacity='1', 150); }
-}
-
-function remoteSearch() {
-  const q = document.getElementById('rm-search-input').value.trim();
-  if (!q) return;
-  broadcastCmd({ t: 'search', q, eng: rmEng });
-}
-
-function rmSetEng(e, el) {
-  rmEng = e;
-  document.querySelectorAll('.rm-etab').forEach(t => t.classList.remove('on'));
-  el.classList.add('on');
-}
-
-// ══════════════════════════════════════
-// INIT
-// ══════════════════════════════════════
-if (isRemote) {
+// decide modo
+const _p = new URLSearchParams(location.search);
+if (_p.has('remote')) {
   document.getElementById('tv-mode').style.display = 'none';
   document.getElementById('remote-mode').style.display = 'flex';
-
-  // Mostra link da TV pra referência
-  const tvUrl = location.href.split('?')[0];
-  const hint = document.getElementById('tv-link-hint');
-  if (hint) hint.innerHTML = '📺 TV: <a href="'+tvUrl+'" target="_blank">'+tvUrl+'</a>';
-
-  // Enter no campo de busca
-  setTimeout(() => {
-    const ri = document.getElementById('rm-search-input');
-    if (ri) ri.addEventListener('keydown', e => { if(e.key==='Enter') remoteSearch(); });
-  }, 100);
-} else {
-  initTV();
 }
 </script>
 </body>
